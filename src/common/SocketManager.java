@@ -276,7 +276,10 @@ public class SocketManager {
 
     public static void GAME_SEND_MAPDATA(GameClient out, int id, String date,
                                          String key) {
-        String packet = "GDM|" + id + "|" + date + "|" + key;
+        // Client 1.43.7 : les fichiers map sont nommés `<id>_<date>X.swf` (key toujours vide).
+        // La key DB reste utilisée côté SERVEUR pour décrypter mapData au load, mais on n'envoie
+        // PAS la key dans le packet GDM pour que le client trouve son fichier local.
+        String packet = "GDM|" + id + "|" + date + "|";
         send(out, packet);
     }
 
