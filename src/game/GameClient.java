@@ -9080,8 +9080,12 @@ public class GameClient {
             SpellGrade Spell = this.player.getSortStatBySortIfHas(SpellID);
             if (Spell != null) {
                 this.player.set_SpellPlace(SpellID, World.world.getCryptManager().getHashedValueByInt(Position));
+                // Le client 1.43.7 met à jour la shortcut bar / SpellsCollection uniquement
+                // sur réception du packet SM<id>|<position> renvoyé par le serveur (cf. Spells.onSpellMove).
+                this.send("SM" + SpellID + "|" + Position);
+            } else {
+                SocketManager.GAME_SEND_BN(this);
             }
-            SocketManager.GAME_SEND_BN(this);
         } catch (Exception e) {
             e.printStackTrace();
         }
