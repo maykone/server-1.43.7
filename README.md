@@ -80,19 +80,50 @@ L’archive **Aegnor_Serveur.zip** contient l’intégralité des fichiers néce
 
 ---
 
-## 🚀 INSTALLATION
+## 🛠️ INSTALLATION & BUILD
 
-1. Compilez le projet en `.jar`  
-2. Lancez le serveur avec :  
+### Outils à installer
 
-   ```bash
-   java -Xmx2G -jar Aegnor.jar
-   ```
-3. Connectez-vous avec le compte déjà créé :  
-   - **login** : `admin1`  
-   - **mot de passe** : `admin`  
+| Outil | Version | macOS | Linux | Windows |
+|---|---|---|---|---|
+| JDK | 11+ | `brew install openjdk@17` | `apt install openjdk-17-jdk` | https://adoptium.net/ |
+| Kotlin compiler | 1.6+ | `brew install kotlin` | `apt install kotlin` (ou [SDKMAN](https://sdkman.io/)) | `scoop install kotlin` |
+| MariaDB (ou MySQL) | 10+ | `brew install mariadb` + `brew services start mariadb` | `apt install mariadb-server` | https://mariadb.org/download |
 
-🎥 Tutoriel vidéo d’installation : [Cliquez ici](https://youtu.be/06tjFmFvEkk)
+Vérifie l'install : `java -version`, `javac -version`, `kotlinc -version`.
+
+### Build + lancement
+
+```bash
+git clone https://github.com/jguyet/server-1.43.7.git
+cd server-1.43.7
+
+# 1. Copier la config exemple et l'éditer
+cp config.example config.properties
+nano config.properties   # adapte server.host, exchange.host, database.{login,game,site}, etc.
+
+# 2. Compiler
+./build.sh               # macOS/Linux
+# OU
+build.bat                # Windows
+
+# 3. Démarrer (le login doit déjà tourner avant)
+./start.sh               # macOS/Linux
+# OU
+start.bat                # Windows
+```
+
+Le game serveur écoute par défaut sur le port `5555` (configurable via `server.port`).
+Pense à créer les DBs `aegnor_game` et `aegnor_login` (+ optionnellement `aegnor_web` pour Azuriom) et importer les schémas SQL avant le premier démarrage.
+
+**Compte par défaut** (présent dans le dump SQL initial) :
+- login : `admin1`
+- mot de passe : `admin`
+
+### Alternative (legacy)
+
+Si tu as l'archive **Aegnor_Serveur.zip** : décompresse-la et lance directement `java -Xmx2G -jar Aegnor.jar`.
+🎥 Tutoriel vidéo : [Cliquez ici](https://youtu.be/06tjFmFvEkk)
 
 ---
 
