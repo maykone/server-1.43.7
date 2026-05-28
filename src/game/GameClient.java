@@ -7740,6 +7740,55 @@ public class GameClient {
             case 's':
                 setSkinObvi(packet);
                 break;
+            case 'r':
+                // 1.43.7 : inventory shortcut bar (OrA<pos>;<objId>, OrM<oldPos>;<newPos>, OrR<pos>).
+                inventoryShortcut(packet);
+                break;
+        }
+    }
+
+    private void inventoryShortcut(String packet) {
+        if (packet.length() < 3) return;
+        char sub = packet.charAt(2);
+        String data = packet.substring(3);
+        try {
+            switch (sub) {
+                case 'A': {
+                    // OrA<position>;<objectID>  → confirm with OrA<position>;<objectID>;
+                    String[] parts = data.split(";");
+                    if (parts.length < 2) return;
+                    int position = Integer.parseInt(parts[0]);
+                    long objectId = Long.parseLong(parts[1]);
+                    this.player.getInventoryShortcuts().put(position, objectId);
+                    Database.getStatics().getPlayerData().update(this.player);
+                    this.send("OrA" + position + ";" + objectId + ";");
+                    break;
+                }
+                case 'M': {
+                    // OrM<oldPos>;<newPos> → remove old, add new with same object
+                    String[] parts = data.split(";");
+                    if (parts.length < 2) return;
+                    int oldPos = Integer.parseInt(parts[0]);
+                    int newPos = Integer.parseInt(parts[1]);
+                    Long objectId = this.player.getInventoryShortcuts().remove(oldPos);
+                    if (objectId == null) return;
+                    this.player.getInventoryShortcuts().put(newPos, objectId);
+                    Database.getStatics().getPlayerData().update(this.player);
+                    this.send("OrR" + oldPos);
+                    this.send("OrA" + newPos + ";" + objectId + ";");
+                    break;
+                }
+                case 'R': {
+                    // OrR<position> → confirm with OrR<position>
+                    int position = Integer.parseInt(data);
+                    this.player.getInventoryShortcuts().remove(position);
+                    Database.getStatics().getPlayerData().update(this.player);
+                    this.send("OrR" + position);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

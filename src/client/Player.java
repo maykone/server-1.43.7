@@ -167,6 +167,39 @@ public class Player {
     //Sort
     private Map<Integer, SpellGrade> _sorts = new HashMap<Integer, SpellGrade>();
     private Map<Integer, Character> _sortsPlaces = new HashMap<Integer, Character>();
+    //Inventory shortcut bar (1.43.7) : position → object GUID
+    private Map<Integer, Long> _inventoryShortcuts = new HashMap<Integer, Long>();
+    public Map<Integer, Long> getInventoryShortcuts() { return _inventoryShortcuts; }
+    public String parseInventoryShortcutsToDB() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<Integer, Long> e : _inventoryShortcuts.entrySet()) {
+            if (sb.length() > 0) sb.append(",");
+            sb.append(e.getKey()).append(":").append(e.getValue());
+        }
+        return sb.toString();
+    }
+    public void parseInventoryShortcuts(String s) {
+        _inventoryShortcuts.clear();
+        if (s == null || s.isEmpty()) return;
+        for (String pair : s.split(",")) {
+            String[] kv = pair.split(":");
+            if (kv.length == 2) {
+                try {
+                    _inventoryShortcuts.put(Integer.parseInt(kv[0]), Long.parseLong(kv[1]));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+    }
+    public String parseInventoryShortcutsListPacket() {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<Integer, Long> e : _inventoryShortcuts.entrySet()) {
+            if (!first) sb.append("|");
+            sb.append("OrA").append(e.getKey()).append(";").append(e.getValue()).append(";");
+            first = false;
+        }
+        return sb.toString();
+    }
     //Titre
     private byte _title = 0;
     //Mariage
