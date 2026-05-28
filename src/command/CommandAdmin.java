@@ -2159,22 +2159,31 @@ public class CommandAdmin extends AdminUser {
                     // ok
                 }
             }
-            String pseudo = "";
-            if(infos.length >= 4)
-            {
-                pseudo = infos[3];
-            }
             boolean useMax = false;
             int rarity = 0;
-            if (infos.length >= 5)//Si un jet est specifie
-            {
-                if (infos[4].equalsIgnoreCase("MAX") || infos[4].equalsIgnoreCase("Max"))
-                    useMax = true;
-            }
+            String pseudo = "";
 
-            if (infos.length >= 6)//Si un jet est specifie
-            {
-                rarity = Integer.parseInt(infos[5]);
+            // Parsing flexible : `item <tID> <qua> [pseudo] [max] [rarity]`
+            // mais [pseudo] est optionnel — si l'arg #3 est "max" ou un nombre (rarité),
+            // on le traite directement comme tel au lieu de chercher un joueur inexistant.
+            int idx = 3;
+            if (infos.length > idx && !infos[idx].equalsIgnoreCase("MAX")) {
+                try {
+                    rarity = Integer.parseInt(infos[idx]);
+                    idx++;
+                } catch (NumberFormatException nfe) {
+                    pseudo = infos[idx];
+                    idx++;
+                }
+            }
+            if (infos.length > idx && infos[idx].equalsIgnoreCase("MAX")) {
+                useMax = true;
+                idx++;
+            }
+            if (infos.length > idx) {
+                try {
+                    rarity = Integer.parseInt(infos[idx]);
+                } catch (NumberFormatException ignored) {}
             }
 
 
