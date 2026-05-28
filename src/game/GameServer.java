@@ -46,7 +46,11 @@ public class GameServer {
     //}
 
     private GameServer(){
-        acceptor = new NioSocketAcceptor();
+        NioSocketAcceptor a = new NioSocketAcceptor();
+        // SO_REUSEADDR : permet de re-bind immédiatement après stop sans attendre que le port
+        // sorte du TIME_WAIT (sinon "Address already in use" sur restart rapide).
+        a.setReuseAddress(true);
+        acceptor = a;
         TextLineCodecFactory line = new TextLineCodecFactory(StandardCharsets.UTF_8, LineDelimiter.NUL, new LineDelimiter("\n\0"));
         line.setDecoderMaxLineLength(16384);
         acceptor.getFilterChain().addLast("codec",  new ProtocolCodecFilter(line));
@@ -78,12 +82,16 @@ public class GameServer {
     }
 
     public void stop() {
-        if (!acceptor.isActive()) {
+        // Bug historique : la condition était inversée (`!acceptor.isActive()`) → le
+        // cleanup ne se faisait que quand l'acceptor n'était PAS actif. Résultat : le port
+        // 5555 restait bound, IOException au prochain start "Address already in use".
+        // Ordre correct : ferme les sessions, unbind du port, puis dispose des threads.
+        if (acceptor.isActive()) {
             acceptor.getManagedSessions().values().stream()
                     .filter(session -> session.isConnected() || !session.isClosing())
                     .forEach(session -> session.closeNow());
-            acceptor.dispose();
             acceptor.unbind();
+            acceptor.dispose();
         }
         sendWebhookInformationsServeur("Le serveur est éteint pour maintenance");
         log.error("The game server was stopped.");
