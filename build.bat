@@ -17,7 +17,7 @@ if exist "%TEMP%\game_java.txt" del "%TEMP%\game_java.txt"
 for /f "delims=" %%f in ('dir /s /b src\*.java') do (
   set "p=%%f"
   set "p=!p:\=/!"
-  echo !p!>> "%TEMP%\game_java.txt"
+  echo "!p!">> "%TEMP%\game_java.txt"
 )
 
 javac -encoding UTF-8 -cp "!CP!" -d build\classes "@%TEMP%\game_java.txt"
