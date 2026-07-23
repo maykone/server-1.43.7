@@ -71,7 +71,7 @@ public class Logging {
             this.name = name;
 
             if (!new File("Logs/" + this.name).exists())
-                new File("Logs/" + this.name).mkdir();
+                new File("Logs/" + this.name).mkdirs();
 
             this.buffer = new BufferedWriter(new FileWriter("Logs/" + this.name
                     + "/" + date + ".log", true));
