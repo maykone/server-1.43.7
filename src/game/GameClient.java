@@ -9099,6 +9099,9 @@ public class GameClient {
             case 'B':
                 boostSpell(packet);
                 break;
+            case 'D':
+                downgradeSpell(packet);
+                break;
             case 'F'://Oublie de sort
                 forgetSpell(packet);
                 break;
@@ -9112,6 +9115,21 @@ public class GameClient {
         try {
             int id = Integer.parseInt(packet.substring(2));
             if (this.player.boostSpell(id)) {
+                SocketManager.GAME_SEND_SPELL_UPGRADE_SUCCED(this, id, this.player.getSortStatBySortIfHas(id).getLevel());
+                SocketManager.GAME_SEND_STATS_PACKET(this.player);
+            } else {
+                SocketManager.GAME_SEND_SPELL_UPGRADE_FAILED(this);
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            SocketManager.GAME_SEND_SPELL_UPGRADE_FAILED(this);
+        }
+    }
+
+    private void downgradeSpell(String packet) {
+        try {
+            int id = Integer.parseInt(packet.substring(2));
+            if (this.player.NerfSpell(id)) {
                 SocketManager.GAME_SEND_SPELL_UPGRADE_SUCCED(this, id, this.player.getSortStatBySortIfHas(id).getLevel());
                 SocketManager.GAME_SEND_STATS_PACKET(this.player);
             } else {
