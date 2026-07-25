@@ -790,7 +790,7 @@ public class GameMap {
                     A.setArgs("8547,214");
                 A.apply(player, null, -1, -1);
             }
-        }, 500, TimeUnit.MILLISECONDS);
+        }, 3500, TimeUnit.MILLISECONDS);
         player.setNeededEndFight(-1, null);
     }
 
