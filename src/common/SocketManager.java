@@ -2913,35 +2913,11 @@ public class SocketManager {
     public static void GAME_SEND_SL_LISTE_FROM_INVO(Fighter invoc, Player leader) {
         String packet = "SL" + invoc.getPlayer().stringListeSorts();
         send(leader, packet);
-        StringBuilder p = new StringBuilder();
-        if (invoc.getLaunchedSpell() != null) {
-            if ((long) invoc.getLaunchedSpell().size() > 0) {
-                for (LaunchedSpell launchedSpell : invoc.getLaunchedSpell()) {
-                    if (launchedSpell.getCooldown() > 0) {
-                        p.append("SLA").append(invoc.getId()).append(",").append(launchedSpell.getSpellId()).append(",").append(invoc.getCell().getId()).append(",").append(launchedSpell.getCooldown());
-                        send(leader, p.toString());
-                        p = new StringBuilder();
-                    }
-                }
-            }
-        }
     }
 
     public static void GAME_SEND_SL_LISTE(Fighter leader) {
         String packet = "SL" + leader.getPlayer().stringListeSorts();
         send(leader.getPlayer(), packet);
-        StringBuilder p = new StringBuilder();
-        if (leader.getLaunchedSpell() != null) {
-            if ((long) leader.getLaunchedSpell().size() > 0) {
-                for (LaunchedSpell launchedSpell : leader.getLaunchedSpell()) {
-                    if (launchedSpell.getCooldown() > 0) {
-                        p.append("SLA").append(leader.getId()).append(",").append(launchedSpell.getSpellId()).append(",").append(leader.getCell().getId()).append(",").append(launchedSpell.getCooldown());
-                        send(leader.getPlayer(), p.toString());
-                        p = new StringBuilder();
-                    }
-                }
-            }
-        }
     }
 
     public static void GAME_SEND_Aa_TURN_LIDER(Player leader, Player player) {
