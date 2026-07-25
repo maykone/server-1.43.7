@@ -778,21 +778,19 @@ public class GameMap {
     public void applyEndFightAction(Player player) {
         if (this.endFightAction.get(player.needEndFight()) == null)
             return;
-        if (this.id ==  8545) {
-            if (player.getCurCell().getId() <= 193 && player.getCurCell().getId() != 186 && player.getCurCell().getId() != 187 && player.getCurCell().getId() != 173 && player.getCurCell().getId() != 172 && player.getCurCell().getId() != 144 && player.getCurCell().getId() != 158) {
-                for (Action A : this.endFightAction.get(player.needEndFight())) {
-                    A.apply(player, null, -1, -1);
-                }
-            } else {
-                for (Action A : this.endFightAction.get(player.needEndFight())) {
+        final ArrayList<Action> actions = this.endFightAction.get(player.needEndFight());
+        final boolean useAltArgs = this.id == 8545 && !(player.getCurCell().getId() <= 193 && player.getCurCell().getId() != 186 && player.getCurCell().getId() != 187 && player.getCurCell().getId() != 173 && player.getCurCell().getId() != 172 && player.getCurCell().getId() != 144 && player.getCurCell().getId() != 158);
+        // Delai avant d'appliquer la teleportation de fin de combat (changement de salle de donjon) :
+        // sans ca, le paquet de nouvelle carte arrive au client au meme instant que le retour normal
+        // de combat (meme technique deja utilisee pour le labyrinthe du Minotoror plus bas, cf. "portes fermees"),
+        // ce qui produit un ecran noir tant que le client n'est pas reconnecte.
+        TimerWaiter.addNext(() -> {
+            for (Action A : actions) {
+                if (useAltArgs)
                     A.setArgs("8547,214");
-                    A.apply(player, null, -1, -1);
-                }
-            }
-        } else {
-            for (Action A : this.endFightAction.get(player.needEndFight()))
                 A.apply(player, null, -1, -1);
-        }
+            }
+        }, 500, TimeUnit.MILLISECONDS);
         player.setNeededEndFight(-1, null);
     }
 
