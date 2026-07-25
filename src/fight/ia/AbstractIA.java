@@ -78,8 +78,8 @@ public abstract class AbstractIA implements IA {
         this.apply();
     }
 
-    private static final double SPEED_FACTOR = 1.5; // >1 = tours de monstres plus rapides
-    private static final int MIN_DELAY_MS = 350;     // ancien floor 500, réduit proportionnellement à SPEED_FACTOR
+    private static final double SPEED_FACTOR = 2.5; // >1 = tours de monstres plus rapides
+    private static final int MIN_DELAY_MS = 150;     // ancien floor 500, réduit proportionnellement à SPEED_FACTOR
 
     public void addNext(Runnable runnable, Integer time) {
         /*while(this.fight.isCurAction() || this.fight.isTraped())
