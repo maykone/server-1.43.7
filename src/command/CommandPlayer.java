@@ -232,6 +232,10 @@ public class CommandPlayer {
                               SocketManager.GAME_SEND_MESSAGE(p, "<b>(Information) " + player.getName() + " </b> est déjà votre maitre !");
                               SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information) " + p.getName() + " </b> est déjà votre esclave !");
                               continue;
+                          } else if (player.PlayerList1.size() >= 7) {
+                              p.setSlaveLeader(null);
+                              SocketManager.GAME_SEND_MESSAGE(player, "<b>(Erreur)</b> Vous avez deja 8 personnages lies (limite maximum), impossible d'ajouter " + p.getName());
+                              continue;
                           } else {
                               player.PlayerList1.add(p);
                           }
@@ -763,9 +767,10 @@ public class CommandPlayer {
                     player.sendMessage("Impossible d'utiliser cette commande en combat");
                     return true;
                 }
-                if(!player.PlayerList1.isEmpty()){
-                    player.disposeSlavery();
-                    SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> Votre liste de suiveur à  été réinitialisée, si vous souhaitez la recréer faites .maitre");
+                if (player.getSlaveLeader() != null) {
+                    SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> Votre maitre est <b>" + player.getSlaveLeader().getName() + "</b>");
+                } else {
+                    SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> Vous n'avez pas de maitre");
                 }
                 return true;
             }
@@ -775,8 +780,15 @@ public class CommandPlayer {
                     return true;
                 }
                 if(!player.PlayerList1.isEmpty()){
-                    player.disposeSlavery();
-                    SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> Votre liste de suiveur à  été réinitialisée, si vous souhaitez la recréer faites .maitre");
+                    StringBuilder names = new StringBuilder();
+                    for (Player slave : player.PlayerList1) {
+                        if (slave == null) continue;
+                        if (names.length() > 0) names.append(", ");
+                        names.append(slave.getName());
+                    }
+                    SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> Vos suiveurs : <b>" + names + "</b>");
+                } else {
+                    SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> Vous n'avez aucun suiveur");
                 }
                 return true;
             }
@@ -1277,6 +1289,11 @@ public class CommandPlayer {
                         if(player.PlayerList1.contains(p) ) {
                             SocketManager.GAME_SEND_MESSAGE(p,"<b>(Information) " + player.getName() + " </b> est déjà votre maitre !");
                             SocketManager.GAME_SEND_MESSAGE(player,"<b>(Information) " + p.getName() + " </b> est déjà votre esclave !");
+                            continue;
+                        }
+                        else if (player.PlayerList1.size() >= 7) {
+                            p.setSlaveLeader(null);
+                            SocketManager.GAME_SEND_MESSAGE(player, "<b>(Erreur)</b> Vous avez deja 8 personnages lies (limite maximum), impossible d'ajouter " + p.getName());
                             continue;
                         }
                         else {

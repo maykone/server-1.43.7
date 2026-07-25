@@ -608,38 +608,12 @@ public class Account {
         if (player.getMount() != null)
             Database.getStatics().getMountData().update(player.getMount());
 
+        this.cleanupMasterSlaveState(player);
+
         if (player.getFight() != null) {
             if (player.getFight().playerDisconnect(player, false)) {
                 Database.getStatics().getPlayerData().update(player);
                 return;
-            }
-        }
-        else{
-            if (player.getSlaveLeader() != null) {
-                player.getSlaveLeader().PlayerList1.remove(player);
-                SocketManager.GAME_SEND_MESSAGE(player.getSlaveLeader(),"<b>(Information) " + player.getName() + "</b> ne fait plus parti de vos Suiveurs");
-                player.setSlaveLeader(null);
-            }
-
-            if(!player.PlayerList1.isEmpty()){
-
-                for(final Player slave : player.PlayerList1) {
-                    SocketManager.GAME_SEND_MESSAGE(slave, "<b>(Information) " + player.getName() + " </b> n'est plus votre maitre car il s'est déconnecté !");
-                    if(player.ipdrop){
-                        SocketManager.GAME_SEND_MESSAGE(slave, "<b>(Information) " + player.getName() + " </b> ne recupère plus vos drop !");
-                    }
-                    if(player.oneWindows){
-                        SocketManager.GAME_SEND_MESSAGE(slave, "<b>(Information) " + player.getName() + " </b> ne joue plus vos tour !");
-                    }
-                }
-                player.PlayerList1.clear();
-                player.ipdrop = false;
-                player.oneWindows = false;
-
-            }
-
-            if(player.controleinvo){
-                player.controleinvo = false;
             }
         }
         this.currentPlayer = null;
@@ -653,6 +627,36 @@ public class Account {
         this.resetAllChars();
         Database.getStatics().getAccountData().update(this);
         World.world.logger.info("The player " + player.getName() + " come to disconnect.");
+    }
+
+    private void cleanupMasterSlaveState(Player player) {
+        if (player.getSlaveLeader() != null) {
+            player.getSlaveLeader().PlayerList1.remove(player);
+            SocketManager.GAME_SEND_MESSAGE(player.getSlaveLeader(),"<b>(Information) " + player.getName() + "</b> ne fait plus parti de vos Suiveurs");
+            player.setSlaveLeader(null);
+        }
+
+        if(!player.PlayerList1.isEmpty()){
+
+            for(final Player slave : player.PlayerList1) {
+                slave.setSlaveLeader(null);
+                SocketManager.GAME_SEND_MESSAGE(slave, "<b>(Information) " + player.getName() + " </b> n'est plus votre maitre car il s'est déconnecté !");
+                if(player.ipdrop){
+                    SocketManager.GAME_SEND_MESSAGE(slave, "<b>(Information) " + player.getName() + " </b> ne recupère plus vos drop !");
+                }
+                if(player.oneWindows){
+                    SocketManager.GAME_SEND_MESSAGE(slave, "<b>(Information) " + player.getName() + " </b> ne joue plus vos tour !");
+                }
+            }
+            player.PlayerList1.clear();
+            player.ipdrop = false;
+            player.oneWindows = false;
+
+        }
+
+        if(player.controleinvo){
+            player.controleinvo = false;
+        }
     }
 
     public void updateVote(String hour, String ip) {

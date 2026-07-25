@@ -922,10 +922,10 @@ public class Action {
                                                         if (slave.getAccount().getGameClient() != null) {
                                                             //On duplique la game action du maitre pour les slaves
                                                             if (slave.hasItemTemplate(ObjetNeed, 1) ) {
-                                                                /*slave.teleport(newMapID, newCellID);
+                                                                slave.teleport(newMapID, newCellID);
                                                                 slave.removeByTemplateID(ObjetNeed, 1);
                                                                 SocketManager.GAME_SEND_Ow_PACKET(slave);
-                                                                slave.getGameClient().leave(); // Au Cas ou le joueur avait une popup Dialog ouverte*/
+                                                                slave.getGameClient().leave(); // Au Cas ou le joueur avait une popup Dialog ouverte
                                                             }
                                                             else if(player.hasItemTemplate(ObjetNeed, 2)){
                                                                 slave.teleport(newMapID, newCellID);
@@ -982,7 +982,29 @@ public class Action {
                                     && player.getCurMap().getId() == MapNeed) {
                                 //Le perso a l'item
                                 //Le perso est sur la bonne map
-                                //On t�l�porte
+                                //On duplique la game action du maitre pour les slaves
+                                if (player.getSlaves() != null && player.getCurMap().getId() != 12277) {
+                                    if (player.getSlaves().size() > 0) {
+                                        for (Player slave : player.PlayerList1) {
+                                            if (slave == null) continue;
+                                            if (slave.getCurMap() != player.getCurMap()) continue;
+                                            if (slave.getCurMap().hasEndFightAction(0)) continue;
+                                            if (slave.getFight() != null) continue;
+                                            if (slave.getAccount() != null) {
+                                                if (slave.getAccount().getGameClient() != null) {
+                                                    if (slave.hasItemTemplate(ObjetNeed, 1)) {
+                                                        slave.teleport(newMapID, newCellID);
+                                                        SocketManager.GAME_SEND_Ow_PACKET(slave);
+                                                        slave.getGameClient().leave(); // Au Cas ou le joueur avait une popup Dialog ouverte
+                                                    } else {
+                                                        SocketManager.GAME_SEND_MESSAGE(player, "Vous ne possedez pas assez de clefs necessaire pour faire entrer " + slave.getName() + ".", "009900");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                //On teleporte
                                 player.teleport(newMapID, newCellID);
                                 SocketManager.GAME_SEND_Ow_PACKET(player);
                             } else if (player.getCurMap().getId() != MapNeed) {
