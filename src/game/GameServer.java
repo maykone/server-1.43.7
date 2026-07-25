@@ -50,6 +50,10 @@ public class GameServer {
         // SO_REUSEADDR : permet de re-bind immédiatement après stop sans attendre que le port
         // sorte du TIME_WAIT (sinon "Address already in use" sur restart rapide).
         a.setReuseAddress(true);
+        // TCP_NODELAY : desactive l'algorithme de Nagle. Sans ca, l'OS peut regrouper plusieurs
+        // paquets envoyes tres rapidement (rafale AB/AI/SL du mode maitre) dans un seul segment TCP,
+        // ce qui peut perturber le decoupage des messages delimites par NUL cote client (XMLSocket).
+        a.getSessionConfig().setTcpNoDelay(true);
         acceptor = a;
         TextLineCodecFactory line = new TextLineCodecFactory(StandardCharsets.UTF_8, LineDelimiter.NUL, new LineDelimiter("\n\0"));
         line.setDecoderMaxLineLength(16384);
