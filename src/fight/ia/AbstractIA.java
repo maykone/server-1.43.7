@@ -78,12 +78,16 @@ public abstract class AbstractIA implements IA {
         this.apply();
     }
 
+    private static final double SPEED_FACTOR = 1.5; // >1 = tours de monstres plus rapides
+    private static final int MIN_DELAY_MS = 350;     // ancien floor 500, réduit proportionnellement à SPEED_FACTOR
+
     public void addNext(Runnable runnable, Integer time) {
         /*while(this.fight.isCurAction() || this.fight.isTraped())
             try {
                 time -= 20;
                 Thread.sleep(20);
             } catch (InterruptedException e) {}*/
-        executor.schedule(runnable,time < 500 ? 500 : time,TimeUnit.MILLISECONDS);
+        int scaled = (int) Math.round(time / SPEED_FACTOR);
+        executor.schedule(runnable,scaled < MIN_DELAY_MS ? MIN_DELAY_MS : scaled,TimeUnit.MILLISECONDS);
     }
 }
