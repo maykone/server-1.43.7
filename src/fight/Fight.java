@@ -1955,7 +1955,7 @@ public class Fight {
         Player Invocator = invocatorf.getPlayer();
         if(invocatorf != null ) {
             Player MasterOfInvocator = invocatorf.getPlayer().getSlaveLeader();
-                    if (MasterOfInvocator != null && isInFight(MasterOfInvocator) ) {
+                    if (MasterOfInvocator != null && isInFight(MasterOfInvocator) && (MasterOfInvocator.controleinvo || Invocator.controleinvo) ) {
                             if (MasterOfInvocator.getCurrentCompagnon() != null) {
                                 MasterOfInvocator.setCurrentCompagnon(null);
                             }
@@ -1966,7 +1966,7 @@ public class Fight {
                             SocketManager.ENVIAR_GM_LUCHADORES_A_PERSO2(this.map, Invocation);
                             SocketManager.GAME_SEND_XC_PACKET(Invocation, MasterOfInvocator);
                     }
-                    else if (Invocator != null && isInFight(Invocator))
+                    else if (Invocator != null && isInFight(Invocator) && Invocator.controleinvo)
                     {
                         if(Invocator.getCurrentCompagnon() != null) {
                             Invocator.setCurrentCompagnon(null);
