@@ -41,7 +41,7 @@ public class GameMap {
         @Override
         public void update() {
             if(!this.groups.isEmpty()) {
-                long time = System.currentTimeMillis(), random = Formulas.getRandomValue(120000, 300000);
+                long time = System.currentTimeMillis(), random = 1000;
 
                 for(RespawnGroup respawnGroup : new ArrayList<>(this.groups)) {
                     if(respawnGroup.cell != -1) {
