@@ -787,7 +787,7 @@ public class Effect  {
                             healFinal = 0;
 
                         caster.removePdv(caster, -healFinal);
-                        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 108, target.getId() + "", caster.getId() + "," + healFinal, this.effectID);
+                        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 108, target.getId() + "", caster.getId() + "," + healFinal, getClientColorElem());
                         break;
                     case 788 :
                         if(damageDone<1){
@@ -1548,7 +1548,7 @@ public class Effect  {
         caster.removePdv(caster, finalDommage);
 
         finalDommage = -(finalDommage);
-        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 100, caster.getId()+ "", caster.getId() + "," + finalDommage, this.effectID);
+        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 100, caster.getId()+ "", caster.getId() + "," + finalDommage, getClientColorElem());
 
         //Application du soin
         for (Fighter target : cibles) {
@@ -1696,7 +1696,7 @@ public class Effect  {
             if (healFinal < 1)
                 healFinal = 0;
             cible.removePdv(caster, -healFinal);
-            SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 108, caster.getId() + "", cible.getId() + "," + healFinal, this.effectID);
+            SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 108, caster.getId() + "", cible.getId() + "," + healFinal, getClientColorElem());
             applyEffectAfterHit(fight,cible,caster,healFinal);
         } else {
             cible.addBuff(effectID, 0, turn, args1,args2,args3, true, spellID, caster,true);//on applique un buff
@@ -2808,7 +2808,15 @@ public class Effect  {
 
     private void sendClientDamage(Fight fight, int targetId, int value){
         int damage = -(Math.abs(value));
-        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 100, caster.getId() + "", targetId + "," + damage, effectID);
+        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 100, caster.getId() + "", targetId + "," + damage, getClientColorElem());
+    }
+
+    // Le client attend un code couleur (0:neutre,1:terre,2:feu,3:eau,4:air) alors que this.elem
+    // suit la convention serveur (0:neutre,1:terre,2:eau,3:feu,4:air) - eau/feu sont inverses entre les deux.
+    private int getClientColorElem() {
+        if (this.elem == Constant.ELEMENT_EAU) return Constant.ELEMENT_FEU;
+        if (this.elem == Constant.ELEMENT_FEU) return Constant.ELEMENT_EAU;
+        return this.elem;
     }
 
     private void sendClientHeal(Fight fight, int targetId, int value){
