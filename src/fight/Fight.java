@@ -1905,7 +1905,6 @@ public class Fight {
                     master.setCurrentCompagnon(null);
                 }
                 master.setCurrentCompagnon(current);
-                SocketManager.send(master, "SC");
                 SocketManager.SEND_AB_LEADER_OPTI(current.getPlayer(), master);
                 SocketManager.ENVIAR_AI_CAMBIAR_ID(master, current.getId());
                 SocketManager.GAME_SEND_STATS_PACKET_TO_LEADER(current.getPlayer(), master);
@@ -1926,7 +1925,6 @@ public class Fight {
             if (player.getCurrentCompagnon() != null) {
                 player.deleteCurrentCompagnon();
             }
-            SocketManager.send(player, "SC");
             if(fullinventory) {
                 SocketManager.GAME_SEND_ASK(player.getGameClient(), player);
                 //SocketManager.ENVIAR_AB_PERSONAJE_A_LIDER(player, player);
@@ -1962,7 +1960,6 @@ public class Fight {
                                 MasterOfInvocator.setCurrentCompagnon(null);
                             }
                             MasterOfInvocator.setCurrentCompagnon(Invocation);
-                            SocketManager.send(MasterOfInvocator, "SC");
                             SocketManager.ENVIAR_AI_CAMBIAR_ID(MasterOfInvocator, Invocation.getId());
                             SocketManager.GAME_SEND_SL_LISTE_FROM_INVO(Invocation, MasterOfInvocator);
                             SocketManager.GAME_SEND_STATS_PACKET_TO_LEADER(Invocation.getPlayer(), MasterOfInvocator);
@@ -1975,7 +1972,6 @@ public class Fight {
                             Invocator.setCurrentCompagnon(null);
                         }
                         Invocator.setCurrentCompagnon(Invocation);
-                        SocketManager.send(Invocator, "SC");
                         SocketManager.ENVIAR_AI_CAMBIAR_ID(Invocator, Invocation.getId());
                         SocketManager.GAME_SEND_SL_LISTE_FROM_INVO(Invocation, Invocator);
                         SocketManager.GAME_SEND_STATS_PACKET_TO_LEADER(Invocation.getPlayer(), Invocator);
@@ -4318,7 +4314,6 @@ public class Fight {
                         player.deleteCurrentCompagnon();
                         SocketManager.ENVIAR_AI_CAMBIAR_ID(player, player.getId());
                     }
-                    SocketManager.send(player, "SC");
                     SocketManager.ENVIAR_AB_PERSONAJE_A_LIDER(player, player);
                     //SocketManager.GAME_SEND_ASK(player.getGameClient(), player);
                     SocketManager.GAME_SEND_STATS_PACKET(player);
