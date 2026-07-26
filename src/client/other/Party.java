@@ -47,6 +47,11 @@ public class Party {
     public void leave(Player player) {
         if (!this.players.contains(player)) return;
 
+        if (!player.PlayerList1.isEmpty()) {
+            player.disposeSlavery();
+            SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> Vous avez quitté le groupe : le mode maître a été désactivé pour tous vos esclaves.");
+        }
+
         player.follow = null;
         player.follower.clear();
         player.setParty(null);
