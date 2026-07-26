@@ -2256,11 +2256,14 @@ public class Player {
             SocketManager.GAME_SEND_MAP_FIGHT_COUNT(client, this.getCurMap());
             if (this.getFight() == null) this.curMap.addPlayer(this);
         } else {
-            try {
-                client.parsePacket("GI");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            // Applique directement l'action de fin de combat en attente (teleport post-defaite, etc.)
+            // sans repasser par le packet "GI" : celui-ci partage son anti-spam (ENTITY_REQUEST_THROTTLE_MS,
+            // GameClient.java) avec la vraie requete "GI" que le client envoie juste apres GC1 pour charger
+            // mobs/npcs/objets de la map - la faire declencher ici grillait cette fenetre et laissait le
+            // client sur un ecran noir, sa vraie requete etant alors silencieusement ignoree.
+            if (this.castEndFightAction())
+                this.getCurMap().applyEndFightAction(this);
+            this.setNeededEndFight(-1, null);
         }
     }
 
