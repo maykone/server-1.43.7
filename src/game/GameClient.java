@@ -3624,61 +3624,64 @@ public class GameClient {
                 final BreakingObject breakingObject = ((BreakingObject) this.player.getExchangeAction().getValue());
 
                 if (packet.charAt(2) == 'O') {
-                    if (packet.charAt(3) == '+') {
-                        if (breakingObject.getObjects().size() >= 8)
-                            return;
+                    // Le client (Exchange.as::movementItems) peut grouper plusieurs objets dans un seul
+                    // paquet, chaque entree prefixee par son propre "+"/"-" (ex: "+207|1+960|1").
+                    for (String entry : packet.substring(3).split("(?=[+-])")) {
+                        if (entry.isEmpty())
+                            continue;
+                        boolean add = entry.charAt(0) == '+';
+                        String[] infos = entry.substring(1).split("\\|");
+                        if (add) {
+                            if (breakingObject.getObjects().size() >= 8)
+                                continue;
 
-                        String[] infos = packet.substring(4).split("\\|");
+                            try {
+                                long id = Long.parseLong(infos[0]);
+                                int qua = Integer.parseInt(infos[1]);
 
-                        try {
-                            long id = Long.parseLong(infos[0]);
-                            int qua = Integer.parseInt(infos[1]);
+                                if (!this.player.hasItemGuid(id))
+                                    continue;
 
-                            if (!this.player.hasItemGuid(id))
-                                return;
+                                GameObject object = this.player.getItems().get(id);
 
-                            GameObject object = this.player.getItems().get(id);
+                                if (object == null || object.isAttach())
+                                    continue;
+                                if (qua < 1)
+                                    continue;
+                                if (qua > object.getQuantity())
+                                    qua = object.getQuantity();
 
-                            if (object == null || object.isAttach())
-                                return;
-                            if (qua < 1)
-                                return;
-                            if (qua > object.getQuantity())
-                                qua = object.getQuantity();
+                                int type = object.getTemplate().getType();
+                                if (type > 11 && type < 16 && type > 23 && type != 81 && type != 82)
+                                    continue;
 
-                            int type = object.getTemplate().getType();
-                            if (type > 11 && type < 16 && type > 23 && type != 81 && type != 82)
-                                return;
+                                SocketManager.SEND_EMK_MOVE_ITEM(this, 'O', "+", id + "|" + breakingObject.addObject(id, qua));
+                            } catch (NumberFormatException e) {
+                                World.world.logger.error("Error Echange CC '" + packet + "' => " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                long id = Long.parseLong(infos[0]);
+                                int qua = Integer.parseInt(infos[1]);
 
-                            SocketManager.SEND_EMK_MOVE_ITEM(this, 'O', "+", id + "|" + breakingObject.addObject(id, qua));
-                        } catch (NumberFormatException e) {
-                            World.world.logger.error("Error Echange CC '" + packet + "' => " + e.getMessage());
-                            e.printStackTrace();
-                            return;
-                        }
-                    } else if (packet.charAt(3) == '-') {
-                        String[] infos = packet.substring(4).split("\\|");
-                        try {
-                            long id = Long.parseLong(infos[0]);
-                            int qua = Integer.parseInt(infos[1]);
+                                GameObject object = World.world.getGameObject(id);
 
-                            GameObject object = World.world.getGameObject(id);
+                                if (object == null)
+                                    continue;
+                                if (qua < 1)
+                                    continue;
 
-                            if (object == null)
-                                return;
-                            if (qua < 1)
-                                return;
+                                final int quantity = breakingObject.removeObject(id, qua);
 
-                            final int quantity = breakingObject.removeObject(id, qua);
-
-                            if (quantity <= 0)
-                                SocketManager.SEND_EMK_MOVE_ITEM(this, 'O', "-", id + "");
-                            else
-                                SocketManager.SEND_EMK_MOVE_ITEM(this, 'O', "+", id + "|" + quantity);
-                        } catch (NumberFormatException e) {
-                            World.world.logger.error("Error Echange CC '" + packet + "' => " + e.getMessage());
-                            e.printStackTrace();
-                            return;
+                                if (quantity <= 0)
+                                    SocketManager.SEND_EMK_MOVE_ITEM(this, 'O', "-", id + "");
+                                else
+                                    SocketManager.SEND_EMK_MOVE_ITEM(this, 'O', "+", id + "|" + quantity);
+                            } catch (NumberFormatException e) {
+                                World.world.logger.error("Error Echange CC '" + packet + "' => " + e.getMessage());
+                                e.printStackTrace();
+                            }
                         }
                     }
                 } else if(packet.charAt(2) == 'R') {
@@ -3965,65 +3968,68 @@ public class GameClient {
                 break;
             case ExchangeAction.TRADING_WITH_NPC_BREAK:
                 switch (packet.charAt(2)) {
-                    case 'O'://Objet ?
-                        if (packet.charAt(3) == '+') {
-                            String[] infos = packet.substring(4).split("\\|");
-                            try {
-                                long guid = Long.parseLong(infos[0]);
-                                int qua = Integer.parseInt(infos[1]);
-                                int quaInExch = ((PlayerExchange.NpcBreakItem) this.player.getExchangeAction().getValue()).getQuaItem(guid, false);
+                    case 'O'://Objet ? - Le client (Exchange.as::movementItems) peut grouper plusieurs objets
+                              // dans un seul paquet, chaque entree prefixee par son propre "+"/"-" (ex: "+207|1+960|1").
+                        for (String entry : packet.substring(3).split("(?=[+-])")) {
+                            if (entry.isEmpty())
+                                continue;
+                            boolean add = entry.charAt(0) == '+';
+                            String[] infos = entry.substring(1).split("\\|");
+                            if (add) {
+                                try {
+                                    long guid = Long.parseLong(infos[0]);
+                                    int qua = Integer.parseInt(infos[1]);
+                                    int quaInExch = ((PlayerExchange.NpcBreakItem) this.player.getExchangeAction().getValue()).getQuaItem(guid, false);
 
-                                if (!this.player.hasItemGuid(guid))
-                                    return;
-                                GameObject obj = this.player.getItems().get(guid);
-                                if (obj == null)
-                                    return;
+                                    if (!this.player.hasItemGuid(guid))
+                                        continue;
+                                    GameObject obj = this.player.getItems().get(guid);
+                                    if (obj == null)
+                                        continue;
 
-                                if (qua > obj.getQuantity() - quaInExch)
-                                    qua = obj.getQuantity() - quaInExch;
+                                    if (qua > obj.getQuantity() - quaInExch)
+                                        qua = obj.getQuantity() - quaInExch;
 
-                                if (qua <= 0 || obj.isAttach())
-                                    return;
+                                    if (qua <= 0 || obj.isAttach())
+                                        continue;
 
-                                int type = obj.getTemplate().getType();
-                                if( ArrayUtils.contains( Constant.FILTER_EQUIPEMENT,type) & !(ArrayUtils.contains( Constant.ITEM_SUPERTYPE_CAPTURE,type) ) ){
+                                    int type = obj.getTemplate().getType();
+                                    if( ArrayUtils.contains( Constant.FILTER_EQUIPEMENT,type) & !(ArrayUtils.contains( Constant.ITEM_SUPERTYPE_CAPTURE,type) ) ){
 
+                                    }
+                                    else{
+                                        SocketManager.GAME_SEND_MESSAGE(this.player,"<b>[Bris'Heur]</b> Je ne ferai rien avec ça, tu peux le garder.");
+                                        continue;
+                                    }
+
+                                    SocketManager.GAME_SEND_EXCHANGE_OTHER_MOVE_OK(this.player.getGameClient(), 'G', "", qua
+                                            + "");
+                                    ((PlayerExchange.NpcBreakItem) this.player.getExchangeAction().getValue()).addItem(guid, qua);
+                                } catch (NumberFormatException e) {
+                                    World.world.logger.error("Error Echange kamas '" + packet + "' => " + e.getMessage());
+                                    e.printStackTrace();
                                 }
-                                else{
-                                    SocketManager.GAME_SEND_MESSAGE(this.player,"<b>[Bris'Heur]</b> Je ne ferai rien avec ça, tu peux le garder.");
-                                    return;
+                            } else {
+                                try {
+                                    long guid = Long.parseLong(infos[0]);
+                                    int qua = Integer.parseInt(infos[1]);
+
+                                    if (qua <= 0)
+                                        continue;
+                                    if (!this.player.hasItemGuid(guid))
+                                        continue;
+
+                                    GameObject obj = World.world.getGameObject(guid);
+                                    if (obj == null)
+                                        continue;
+                                    if (qua > ((PlayerExchange.NpcBreakItem) this.player.getExchangeAction().getValue()).getQuaItem(guid, false))
+                                        continue;
+
+                                    ((PlayerExchange.NpcBreakItem) this.player.getExchangeAction().getValue()).removeItem(guid, qua);
+                                } catch (NumberFormatException e) {
+                                    World.world.logger.error("Error Echange kamas '" + packet + "' => " + e.getMessage());
+                                    e.printStackTrace();
                                 }
-
-                                SocketManager.GAME_SEND_EXCHANGE_OTHER_MOVE_OK(this.player.getGameClient(), 'G', "", qua
-                                        + "");
-                                ((PlayerExchange.NpcBreakItem) this.player.getExchangeAction().getValue()).addItem(guid, qua);
-                            } catch (NumberFormatException e) {
-                                World.world.logger.error("Error Echange kamas '" + packet + "' => " + e.getMessage());
-                                e.printStackTrace();
-                                return;
-                            }
-                        } else {
-                            String[] infos = packet.substring(4).split("\\|");
-                            try {
-                                long guid = Long.parseLong(infos[0]);
-                                int qua = Integer.parseInt(infos[1]);
-
-                                if (qua <= 0)
-                                    return;
-                                if (!this.player.hasItemGuid(guid))
-                                    return;
-
-                                GameObject obj = World.world.getGameObject(guid);
-                                if (obj == null)
-                                    return;
-                                if (qua > ((PlayerExchange.NpcBreakItem) this.player.getExchangeAction().getValue()).getQuaItem(guid, false))
-                                    return;
-
-                                ((PlayerExchange.NpcBreakItem) this.player.getExchangeAction().getValue()).removeItem(guid, qua);
-                            } catch (NumberFormatException e) {
-                                World.world.logger.error("Error Echange kamas '" + packet + "' => " + e.getMessage());
-                                e.printStackTrace();
-                                return;
                             }
                         }
                         break;
