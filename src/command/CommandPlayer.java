@@ -416,31 +416,20 @@ public class CommandPlayer {
                     if (sameTemplate.size() < 2)
                         continue;
 
-                    // On regroupe uniquement par rareté identique : deux items de rareté différente
-                    // ne représentent pas le même "jet" et ne doivent pas être fusionnés.
-                    Map<Integer, List<GameObject>> byRarity = new HashMap<>();
+                    GameObject reference = sameTemplate.get(0);
+                    int totalQua = 0;
                     for (GameObject object : sameTemplate)
-                        byRarity.computeIfAbsent(object.getRarity(), k -> new ArrayList<>()).add(object);
+                        totalQua += object.getQuantity();
 
-                    for (List<GameObject> sameRarity : byRarity.values()) {
-                        if (sameRarity.size() < 2)
-                            continue;
+                    // Le jet (et la rareté) du groupe fusionné est celui de la référence : le reste est perdu.
+                    GameObject merged = GameObject.getCloneObjet(reference, totalQua);
+                    World.world.addGameObject(merged, true);
 
-                        GameObject reference = sameRarity.get(0);
-                        int totalQua = 0;
-                        for (GameObject object : sameRarity)
-                            totalQua += object.getQuantity();
+                    for (GameObject object : sameTemplate)
+                        player.removeItem(object.getGuid(), object.getQuantity(), true, true);
 
-                        // Le jet du groupe fusionné est celui de la référence : les autres jets sont perdus.
-                        GameObject merged = GameObject.getCloneObjet(reference, totalQua);
-                        World.world.addGameObject(merged, true);
-
-                        for (GameObject object : sameRarity)
-                            player.removeItem(object.getGuid(), object.getQuantity(), true, true);
-
-                        player.addObject(merged, true);
-                        stackedTypes++;
-                    }
+                    player.addObject(merged, true);
+                    stackedTypes++;
                 }
 
                 if (stackedTypes > 0) {
