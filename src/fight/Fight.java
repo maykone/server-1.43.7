@@ -1907,6 +1907,7 @@ public class Fight {
                 master.setCurrentCompagnon(current);
                 SocketManager.SEND_AB_LEADER_OPTI(current.getPlayer(), master);
                 SocketManager.ENVIAR_AI_CAMBIAR_ID(master, current.getId());
+                SocketManager.GAME_SEND_GTM_PACKET(master, this); // PA/PM a jour immediatement sur le personnage controle
                 SocketManager.GAME_SEND_STATS_PACKET_TO_LEADER(current.getPlayer(), master);
                 SocketManager.ENVIAR_GM_LUCHADORES_A_PERSO2(this.map, current);
                 SocketManager.GAME_SEND_ITEM_CLASSE_ON_LEADER(current.getPlayer(), master);
@@ -1937,6 +1938,7 @@ public class Fight {
             SocketManager.ENVIAR_GM_LUCHADORES_A_PERSO2(this.map, current);
             SocketManager.GAME_SEND_ITEM_CLASSE_ON_LEADER(player, player);
             SocketManager.ENVIAR_AI_CAMBIAR_ID(player, current.getId());
+            SocketManager.GAME_SEND_GTM_PACKET(player, this); // PA/PM a jour immediatement en revenant sur son propre personnage
             SocketManager.GAME_SEND_SL_LISTE(current);
             //SocketManager.GAME_SEND_Aa_TURN_LIDER(player, player);
             SocketManager.GAME_SEND_XC_PACKET(current, player);
@@ -1961,6 +1963,7 @@ public class Fight {
                             }
                             MasterOfInvocator.setCurrentCompagnon(Invocation);
                             SocketManager.ENVIAR_AI_CAMBIAR_ID(MasterOfInvocator, Invocation.getId());
+                            SocketManager.GAME_SEND_GTM_PACKET(MasterOfInvocator, this); // PA/PM a jour immediatement sur l'invocation controlee
                             SocketManager.GAME_SEND_SL_LISTE_FROM_INVO(Invocation, MasterOfInvocator);
                             SocketManager.GAME_SEND_STATS_PACKET_TO_LEADER(Invocation.getPlayer(), MasterOfInvocator);
                             SocketManager.ENVIAR_GM_LUCHADORES_A_PERSO2(this.map, Invocation);
@@ -1973,6 +1976,7 @@ public class Fight {
                         }
                         Invocator.setCurrentCompagnon(Invocation);
                         SocketManager.ENVIAR_AI_CAMBIAR_ID(Invocator, Invocation.getId());
+                        SocketManager.GAME_SEND_GTM_PACKET(Invocator, this); // PA/PM a jour immediatement sur l'invocation controlee
                         SocketManager.GAME_SEND_SL_LISTE_FROM_INVO(Invocation, Invocator);
                         SocketManager.GAME_SEND_STATS_PACKET_TO_LEADER(Invocation.getPlayer(), Invocator);
                         SocketManager.ENVIAR_GM_LUCHADORES_A_PERSO2(this.map, Invocation);
