@@ -3632,7 +3632,7 @@ public class GameClient {
                         boolean add = entry.charAt(0) == '+';
                         String[] infos = entry.substring(1).split("\\|");
                         if (add) {
-                            if (breakingObject.getObjects().size() >= 8)
+                            if (breakingObject.getObjects().size() >= 50)
                                 continue;
 
                             try {

@@ -1179,7 +1179,7 @@ public class GameCase {
                 break;
             case 181:
                 SocketManager.SEND_GDF_PERSO(player, CcellID, 3, 1);
-                SocketManager.GAME_SEND_ECK_PACKET(player, 3, "8;181");
+                SocketManager.GAME_SEND_ECK_PACKET(player, 3, "50;181");
                 player.setExchangeAction(new ExchangeAction<>(ExchangeAction.BREAKING_OBJECTS, new BreakingObject()));
                 break;
         }
