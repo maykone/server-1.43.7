@@ -84,7 +84,8 @@ public class French extends AbstractLang {
                 + "<b>.noitems</b> - Permet d'empecher le drop d'objets.\n"
                 + "<b>.noblackitems</b> - Permet d'empecher le drop d'objets aléatoire.\n"
                 + "<b>.boutique</b> - Permet d'afficher les objets boutiques.\n"
-                + "<b>.points</b> - Permet d'afficher tes points boutiques.\n"); index++;
+                + "<b>.points</b> - Permet d'afficher tes points boutiques.\n"
+                + "<b>.stack</b> - Permet de regrouper les objets identiques de l'onglet équipement sur un seul emplacement.\n"); index++;
         //18
         this.sentences.add(index,"<b>***COMMANDES MAITRE***</b> disponibles sont :\n"
                 + "<b>.multi</b> - Permet de grouper/Maitre/Tp/OneWindows l'ensemble de tes persos.\n"
