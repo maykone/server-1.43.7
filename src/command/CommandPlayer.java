@@ -388,6 +388,70 @@ public class CommandPlayer {
 
                 return true;
             }
+            else if(command(msg, "stack")) {
+                if (player.getFight() != null){
+                    player.sendMessage("Impossible d'utiliser cette commande en combat");
+                    return true;
+                }
+
+                Map<Integer, List<GameObject>> groupsByTemplate = new HashMap<>();
+                for (GameObject object : new ArrayList<>(player.getItems().values())) {
+                    if (object.getPosition() != Constant.ITEM_POS_NO_EQUIPED)
+                        continue;
+                    int type = object.getTemplate().getType();
+                    if (!ArrayUtils.contains(Constant.FILTER_EQUIPEMENT, type))
+                        continue;
+                    if (ArrayUtils.contains(Constant.ITEM_SUPERTYPE_CAPTURE, type))
+                        continue;
+                    if (type == Constant.ITEM_TYPE_FAMILIER)
+                        continue;
+                    if (Constant.isIncarnationWeapon(object.getTemplate().getId()))
+                        continue;
+
+                    groupsByTemplate.computeIfAbsent(object.getTemplate().getId(), k -> new ArrayList<>()).add(object);
+                }
+
+                int stackedTypes = 0;
+                for (List<GameObject> sameTemplate : groupsByTemplate.values()) {
+                    if (sameTemplate.size() < 2)
+                        continue;
+
+                    // On regroupe uniquement par rareté identique : deux items de rareté différente
+                    // ne représentent pas le même "jet" et ne doivent pas être fusionnés.
+                    Map<Integer, List<GameObject>> byRarity = new HashMap<>();
+                    for (GameObject object : sameTemplate)
+                        byRarity.computeIfAbsent(object.getRarity(), k -> new ArrayList<>()).add(object);
+
+                    for (List<GameObject> sameRarity : byRarity.values()) {
+                        if (sameRarity.size() < 2)
+                            continue;
+
+                        GameObject reference = sameRarity.get(0);
+                        int totalQua = 0;
+                        for (GameObject object : sameRarity)
+                            totalQua += object.getQuantity();
+
+                        // Le jet du groupe fusionné est celui de la référence : les autres jets sont perdus.
+                        GameObject merged = GameObject.getCloneObjet(reference, totalQua);
+                        World.world.addGameObject(merged, true);
+
+                        for (GameObject object : sameRarity)
+                            player.removeItem(object.getGuid(), object.getQuantity(), true, true);
+
+                        player.addObject(merged, true);
+                        stackedTypes++;
+                    }
+                }
+
+                if (stackedTypes > 0) {
+                    SocketManager.GAME_SEND_Ow_PACKET(player);
+                    SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> " + stackedTypes + " type(s) d'objet regroupé(s) sur un seul emplacement.");
+                } else {
+                    SocketManager.GAME_SEND_MESSAGE(player, "<b>(Information)</b> Aucun objet à regrouper dans votre équipement.");
+                }
+
+                return true;
+            }
             else if(command(msg, "noall")) {
                 if (player.noall) {
                     player.noall = false;
