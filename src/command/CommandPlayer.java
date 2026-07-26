@@ -37,6 +37,11 @@ public class CommandPlayer {
     public final static String canal = "Aegnor";
     public static boolean canalMute = false;
 
+    // .stack : si true, deux objets de rareté différente ne sont jamais regroupés
+    // ensemble (chaque rareté garde son propre emplacement). Si false, tout objet
+    // identique est fusionné peu importe sa rareté (comportement précédent).
+    private static final boolean STACK_RESPECT_RARITY = true;
+
     public static boolean analyse(Player player, String msg) {
         if (msg.charAt(0) == '.' && msg.charAt(1) != '.') {
             if (command(msg, "all") && msg.length() > 5) {
@@ -416,20 +421,35 @@ public class CommandPlayer {
                     if (sameTemplate.size() < 2)
                         continue;
 
-                    GameObject reference = sameTemplate.get(0);
-                    int totalQua = 0;
-                    for (GameObject object : sameTemplate)
-                        totalQua += object.getQuantity();
+                    List<List<GameObject>> subGroups = new ArrayList<>();
+                    if (STACK_RESPECT_RARITY) {
+                        Map<Integer, List<GameObject>> byRarity = new HashMap<>();
+                        for (GameObject object : sameTemplate)
+                            byRarity.computeIfAbsent(object.getRarity(), k -> new ArrayList<>()).add(object);
+                        subGroups.addAll(byRarity.values());
+                    } else {
+                        subGroups.add(sameTemplate);
+                    }
 
-                    // Le jet (et la rareté) du groupe fusionné est celui de la référence : le reste est perdu.
-                    GameObject merged = GameObject.getCloneObjet(reference, totalQua);
-                    World.world.addGameObject(merged, true);
+                    for (List<GameObject> group : subGroups) {
+                        if (group.size() < 2)
+                            continue;
 
-                    for (GameObject object : sameTemplate)
-                        player.removeItem(object.getGuid(), object.getQuantity(), true, true);
+                        GameObject reference = group.get(0);
+                        int totalQua = 0;
+                        for (GameObject object : group)
+                            totalQua += object.getQuantity();
 
-                    player.addObject(merged, true);
-                    stackedTypes++;
+                        // Le jet (et la rareté) du groupe fusionné est celui de la référence : le reste est perdu.
+                        GameObject merged = GameObject.getCloneObjet(reference, totalQua);
+                        World.world.addGameObject(merged, true);
+
+                        for (GameObject object : group)
+                            player.removeItem(object.getGuid(), object.getQuantity(), true, true);
+
+                        player.addObject(merged, true);
+                        stackedTypes++;
+                    }
                 }
 
                 if (stackedTypes > 0) {
