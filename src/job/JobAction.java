@@ -1340,6 +1340,8 @@ public class JobAction {
                     }*/
                 }
 
+                int limitPerLigneOver = (rarity > 3) ? 151 : 101; // Budget de poids par ligne pour l'OVER, branche sur la rarete (101 normal, 151 en legendaire) - distinct du limitPerLigne=151 fixe des EXO
+
                 int statMin = getStatBaseMin(objTemplate, statsObjectFm); // stat Minimum de l'obj intéressant pour les cas ou les stats dépasse le poid théorique max
                 /*if(statMin == 0 && (statsObjectFm.equals("70") || statsObjectFm.equals("79")) ) {
                     int statJetActuel1 = getStatBaseMaxLegendaire(objTemplate, "79");
@@ -1360,7 +1362,7 @@ public class JobAction {
 
                 int statJetFutur = statJetActuel + statsAdd;
 
-                int statMaxEffectif = (statMax * poidUnitaire > limitPerLigne) ? statMax : (int) Math.floor(limitPerLigne / poidUnitaire);
+                int statMaxEffectif = (statMax * poidUnitaire > limitPerLigneOver) ? statMax : (int) Math.floor(limitPerLigneOver / poidUnitaire);
                 SocketManager.GAME_SEND_MESSAGE(this.player, "Valeur actuelle : " + statJetActuel + " | Valeur maximum : " + statMaxEffectif + " " + getEffetName(Integer.parseInt(statsObjectFm, 16)), Constant.COULEUR_INFO);
 
 
@@ -1370,7 +1372,7 @@ public class JobAction {
                 boolean canFM = true;
                 float x = 1;
 
-                if(statMax*poidUnitaire > limitPerLigne){ // Si le poid de la ligne de stats de base de l'item supérieur au maximum théorique par ligne de 101(151 en leg)
+                if(statMax*poidUnitaire > limitPerLigneOver){ // Si le poid de la ligne de stats de base de l'item supérieur au maximum théorique par ligne de 101(151 en leg)
                     // On autorise quand même le fm si on dépasse pas le jet max
                     if (statJetActuel+statsAdd > statMax) { // On compare en statistique car le poid ne compte pas pour ces cas
                         this.player.sendMessage("Cette statistique ne montra pas plus haut");
@@ -1379,7 +1381,7 @@ public class JobAction {
                 }
                 else {
                     // Si la stats qui veut faire passer, dépasse la limite théorique
-                    if( (statJetActuel*poidUnitaire)+poidRune > limitPerLigne ) {
+                    if( (statJetActuel*poidUnitaire)+poidRune > limitPerLigneOver ) {
                         this.player.sendMessage("Cette statistique ne montra pas plus haut");
                         canFM = false;
                     }
@@ -1396,7 +1398,7 @@ public class JobAction {
                 else {
                     // TIEN ici on va utiliser le X pour plutot simplifier si on est loin de la limite théorique mais que c'est pas un exo bien entendu
                     if( statJetActuel != 0 ) {
-                        x = (float) (limitPerLigne / (statJetActuel*poidUnitaire));
+                        x = (float) (limitPerLigneOver / (statJetActuel*poidUnitaire));
                         if(x > 5.0f) {
                             x = 5.0f;
                         }
