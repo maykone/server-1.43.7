@@ -563,6 +563,19 @@ public class CommandPlayer {
                 }
                 return true;
             }
+            else if(command(msg, "restat")) {
+                if (player.isMorph()) {
+                    player.sendMessage("Tu ne peux pas restat dans l'état actuel");
+                    return true;
+                }
+                if (player.getFight() != null) {
+                    player.sendMessage("Tu ne peux pas restat en combat");
+                    return true;
+                }
+                player.Restat_Stats(false);
+                player.sendMessage("Vos caractéristiques ont été réinitialisées. Les bonus de parchemins ont été conservés.");
+                return true;
+            }
             else if(command(msg, "staff")) {
                 String message = Lang.get(player, 5);
                 boolean vide = true;
