@@ -1360,6 +1360,8 @@ public class JobAction {
 
                 int statJetFutur = statJetActuel + statsAdd;
 
+                SocketManager.GAME_SEND_MESSAGE(this.player, "Valeur actuelle : " + statJetActuel + " | Valeur maximum : " + statMax + " " + getEffetName(Integer.parseInt(statsObjectFm, 16)), Constant.COULEUR_INFO);
+
 
                 PoidActuelStatAFm = (int)Math.floor(statJetActuel*poidUnitaire); // Poid des stats de base
 
