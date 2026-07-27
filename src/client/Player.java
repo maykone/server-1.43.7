@@ -4132,12 +4132,17 @@ public class Player {
     public void Restat_Stats(Boolean parcho)
     {
         try {
-            getStats().addOneStat(125, -getStats().getEffect(125));
-            getStats().addOneStat(124, -getStats().getEffect(124));
-            getStats().addOneStat(118, -getStats().getEffect(118));
-            getStats().addOneStat(123, -getStats().getEffect(123));
-            getStats().addOneStat(119, -getStats().getEffect(119));
-            getStats().addOneStat(126, -getStats().getEffect(126));
+            int[] ids = {125, 124, 118, 123, 119, 126};
+            for (int id : ids) {
+                // Les points de parchemin sont ecrits dans getStats() au meme titre que les points de capital
+                // (voir ObjectAction.java: boostStat() + getStatsParcho().addOneStat() sont appeles en parallele).
+                // getStatsParcho() sert de registre parallele pour retrouver combien de points restaurer.
+                int parchoBonus = getStatsParcho().getEffect(id);
+                getStats().addOneStat(id, -getStats().getEffect(id));
+                if (!parcho && parchoBonus > 0) {
+                    getStats().addOneStat(id, parchoBonus);
+                }
+            }
             addCapital((getLevel() - 1) * 5 - get_capital());
             if(parcho) {
                 getStatsParcho().getEffects().clear();
