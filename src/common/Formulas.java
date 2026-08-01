@@ -1045,11 +1045,8 @@ public class Formulas {
                     //Les stats du f�ca sont prises en compte
                     fighter = SE.getCaster();
                     break;
-                case 6://Armure Terrestre
-                    //Si pas element terre/neutre, on ignore l'armure
-                    if (statID != Constant.ELEMENT_TERRE
-                            && statID != Constant.ELEMENT_NEUTRE)
-                        continue;
+                case 6://Armure Elementaire (ex-Armure Terrestre, fusion des 4 armures elementaires le 2026-08-03)
+                    //Protege desormais de tous les elements, plus de filtre par statID.
                     //Les stats du f�ca sont prises en compte
                     fighter = SE.getCaster();
                     break;
