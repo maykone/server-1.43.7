@@ -850,8 +850,8 @@ public class Constant {
         switch (classID) {
             case CLASS_FECA:
                 start.put(3, 'b');//Attaque Naturelle
-                start.put(6, 'c');//Armure Terrestre
-                start.put(17, 'd');//Glyphe Agressif
+                start.put(6, 'c');//Armure Elementaire
+                start.put(18, 'd');//Verglas
                 break;
             case CLASS_SRAM:
                 start.put(61, 'b');//Sournoiserie
@@ -917,8 +917,8 @@ public class Constant {
         switch (classID) {
             case CLASS_FECA:
                 start.put(3, World.world.getSort(3).getStatsByLevel(1));//Attaque Naturelle
-                start.put(6, World.world.getSort(6).getStatsByLevel(1));//Armure Terrestre
-                start.put(17, World.world.getSort(17).getStatsByLevel(1));//Glyphe Agressif
+                start.put(6, World.world.getSort(6).getStatsByLevel(1));//Armure Elementaire
+                start.put(18, World.world.getSort(18).getStatsByLevel(1));//Verglas
                 break;
             case CLASS_SRAM:
                 start.put(61, World.world.getSort(61).getStatsByLevel(1));//Sournoiserie
@@ -985,42 +985,42 @@ public class Constant {
             case CLASS_FECA:
                 if(level > 0) {
                     start.put(3, World.world.getSort(3).getStatsByLevel(1));//Attaque Naturelle
-                    start.put(17, World.world.getSort(17).getStatsByLevel(1));//Glyphe Agressif
-                    start.put(6, World.world.getSort(6).getStatsByLevel(1));//Armure Terrestre
+                    start.put(18, World.world.getSort(18).getStatsByLevel(1));//Verglas
+                    start.put(6, World.world.getSort(6).getStatsByLevel(1));//Armure Elementaire
                 } else if(level >= 3) {
-                    start.put(4, World.world.getSort(4).getStatsByLevel(1));//Renvoie de Sort
+                    start.put(12, World.world.getSort(12).getStatsByLevel(1));//Bastion
                 } else if(level >= 6) {
                     start.put(2, World.world.getSort(2).getStatsByLevel(1));//Aveuglement
                 } else if(level >= 9) {
-                    start.put(1, World.world.getSort(1).getStatsByLevel(1));//Armure Incandescente
+                    start.put(9, World.world.getSort(9).getStatsByLevel(1));//Trombe
                 } else if(level >= 13) {
-                    start.put(9, World.world.getSort(9).getStatsByLevel(1));//Attaque Nuageuse
+                    start.put(16, World.world.getSort(16).getStatsByLevel(1));//Terre Battue
                 } else if(level >= 17) {
-                start.put(18, World.world.getSort(18).getStatsByLevel(1));//Armure Aqueuse
+                start.put(4, World.world.getSort(4).getStatsByLevel(1));//Renvoi de Sort
                 } else if(level >= 21) {
-                start.put(20, World.world.getSort(20).getStatsByLevel(1));//Immunité
+                start.put(20, World.world.getSort(20).getStatsByLevel(1));//Immunite
                 } else if(level >= 26) {
-                start.put(14, World.world.getSort(14).getStatsByLevel(1));//Armure Venteuse
+                start.put(14, World.world.getSort(14).getStatsByLevel(1));//Souffle
                 } else if(level >= 31) {
-                start.put(19, World.world.getSort(19).getStatsByLevel(1));//Bulle
+                start.put(17, World.world.getSort(17).getStatsByLevel(1));//Terre Brulee
                 } else if(level >= 36) {
-                start.put(5, World.world.getSort(5).getStatsByLevel(1));//Trêve
+                start.put(5, World.world.getSort(5).getStatsByLevel(1));//Treve
                 } else if(level >= 42) {
-                start.put(16, World.world.getSort(16).getStatsByLevel(1));//Science du Bâton
+                start.put(19, World.world.getSort(19).getStatsByLevel(1));//Bulle
                 } else if(level >= 48) {
-                start.put(8, World.world.getSort(8).getStatsByLevel(1));//Retour du Bâton
+                start.put(8, World.world.getSort(8).getStatsByLevel(1));//Retour du baton
                 } else if(level >= 54) {
-                start.put(12, World.world.getSort(12).getStatsByLevel(1));//Glyphe Aveuglement
+                start.put(13, World.world.getSort(13).getStatsByLevel(1));//Glyphe de Silence
                 } else if(level >= 60) {
-                start.put(11, World.world.getSort(11).getStatsByLevel(1));//Téléportation
+                start.put(11, World.world.getSort(11).getStatsByLevel(1));//Teleportation
                 } else if(level >= 70) {
-                start.put(10, World.world.getSort(10).getStatsByLevel(1));//Glyphe Enflammée
+                start.put(10, World.world.getSort(10).getStatsByLevel(1));//Glyphe Enflamme
                 } else if(level >= 80) {
-                start.put(7, World.world.getSort(7).getStatsByLevel(1));//Bouclier Féca
+                start.put(7, World.world.getSort(7).getStatsByLevel(1));//Bouclier Feca
                 } else if(level >= 90) {
-                start.put(15, World.world.getSort(15).getStatsByLevel(1));//Glyphe Immobilisation
+                start.put(1, World.world.getSort(1).getStatsByLevel(1));//Ouragan
                 } else if(level >= 100) {
-                start.put(13, World.world.getSort(13).getStatsByLevel(1));//Glyphe Silence
+                start.put(15, World.world.getSort(15).getStatsByLevel(1));//Glyphe d'Immobilisation
                 } else if(level == 200) {
                 start.put(1901, World.world.getSort(1901).getStatsByLevel(1));//Dopeul Féca
                 }
@@ -2029,41 +2029,41 @@ public class Constant {
         switch (perso.getClasse()) {
             case CLASS_FECA:
                 if (lvl == 3)
-                    perso.learnSpell(4, 1, true, false, false);//Renvoie de sort
+                    perso.learnSpell(12, 1, true, false, false);//Bastion
                 if (lvl == 6)
                     perso.learnSpell(2, 1, true, false, false);//Aveuglement
                 if (lvl == 9)
-                    perso.learnSpell(1, 1, true, false, false);//Armure Incandescente
+                    perso.learnSpell(9, 1, true, false, false);//Trombe
                 if (lvl == 13)
-                    perso.learnSpell(9, 1, true, false, false);//Attaque nuageuse
+                    perso.learnSpell(16, 1, true, false, false);//Terre Battue
                 if (lvl == 17)
-                    perso.learnSpell(18, 1, true, false, false);//Armure Aqueuse
+                    perso.learnSpell(4, 1, true, false, false);//Renvoi de Sort
                 if (lvl == 21)
-                    perso.learnSpell(20, 1, true, false, false);//Immunit�
+                    perso.learnSpell(20, 1, true, false, false);//Immunite
                 if (lvl == 26)
-                    perso.learnSpell(14, 1, true, false, false);//Armure Venteuse
+                    perso.learnSpell(14, 1, true, false, false);//Souffle
                 if (lvl == 31)
-                    perso.learnSpell(19, 1, true, false, false);//Bulle
+                    perso.learnSpell(17, 1, true, false, false);//Terre Brulee
                 if (lvl == 36)
-                    perso.learnSpell(5, 1, true, false, false);//Tr�ve
+                    perso.learnSpell(5, 1, true, false, false);//Treve
                 if (lvl == 42)
-                    perso.learnSpell(16, 1, true, false, false);//Science du b�ton
+                    perso.learnSpell(19, 1, true, false, false);//Bulle
                 if (lvl == 48)
-                    perso.learnSpell(8, 1, true, false, false);// falseur du b�ton
+                    perso.learnSpell(8, 1, true, false, false);//Retour du baton
                 if (lvl == 54)
-                    perso.learnSpell(12, 1, true, false, false);//glyphe d'Aveuglement
-                if (lvl == 60)
-                    perso.learnSpell(11, 1, true, false, false);//T�l�portation
-                if (lvl == 70)
-                    perso.learnSpell(10, 1, true, false, false);//Glyphe Enflamm�
-                if (lvl == 80)
-                    perso.learnSpell(7, 1, true, false, false);//Bouclier F�ca
-                if (lvl == 90)
-                    perso.learnSpell(15, 1, true, false, false);//Glyphe d'Immobilisation
-                if (lvl == 100)
                     perso.learnSpell(13, 1, true, false, false);//Glyphe de Silence
+                if (lvl == 60)
+                    perso.learnSpell(11, 1, true, false, false);//Teleportation
+                if (lvl == 70)
+                    perso.learnSpell(10, 1, true, false, false);//Glyphe Enflamme
+                if (lvl == 80)
+                    perso.learnSpell(7, 1, true, false, false);//Bouclier Feca
+                if (lvl == 90)
+                    perso.learnSpell(1, 1, true, false, false);//Ouragan
+                if (lvl == 100)
+                    perso.learnSpell(15, 1, true, false, false);//Glyphe d'Immobilisation
                 if (lvl == 200)
-                    perso.learnSpell(1901, 1, true, false, false);//Invocation de Dopeul F�ca
+                    perso.learnSpell(1901, 1, true, false, false);//Invocation de Dopeul Feca
                 break;
 
             case CLASS_OSAMODAS:
