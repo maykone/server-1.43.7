@@ -988,7 +988,7 @@ public class Constant {
                     start.put(18, World.world.getSort(18).getStatsByLevel(1));//Verglas
                     start.put(6, World.world.getSort(6).getStatsByLevel(1));//Armure Elementaire
                 } else if(level >= 3) {
-                    start.put(12, World.world.getSort(12).getStatsByLevel(1));//Bastion
+                    start.put(17, World.world.getSort(17).getStatsByLevel(1));//Terre Brulee
                 } else if(level >= 6) {
                     start.put(2, World.world.getSort(2).getStatsByLevel(1));//Aveuglement
                 } else if(level >= 9) {
@@ -1002,7 +1002,7 @@ public class Constant {
                 } else if(level >= 26) {
                 start.put(14, World.world.getSort(14).getStatsByLevel(1));//Souffle
                 } else if(level >= 31) {
-                start.put(17, World.world.getSort(17).getStatsByLevel(1));//Terre Brulee
+                start.put(12, World.world.getSort(12).getStatsByLevel(1));//Bastion
                 } else if(level >= 36) {
                 start.put(5, World.world.getSort(5).getStatsByLevel(1));//Treve
                 } else if(level >= 42) {
@@ -2029,7 +2029,7 @@ public class Constant {
         switch (perso.getClasse()) {
             case CLASS_FECA:
                 if (lvl == 3)
-                    perso.learnSpell(12, 1, true, false, false);//Bastion
+                    perso.learnSpell(17, 1, true, false, false);//Terre Brulee
                 if (lvl == 6)
                     perso.learnSpell(2, 1, true, false, false);//Aveuglement
                 if (lvl == 9)
@@ -2043,7 +2043,7 @@ public class Constant {
                 if (lvl == 26)
                     perso.learnSpell(14, 1, true, false, false);//Souffle
                 if (lvl == 31)
-                    perso.learnSpell(17, 1, true, false, false);//Terre Brulee
+                    perso.learnSpell(12, 1, true, false, false);//Bastion
                 if (lvl == 36)
                     perso.learnSpell(5, 1, true, false, false);//Treve
                 if (lvl == 42)
