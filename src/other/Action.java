@@ -3795,10 +3795,6 @@ public class Action {
                 }
                 break;
 
-            case 19880://Entree directe salle Minotoror (donjon classique, sans labyrinthe)
-                player.teleport((short) 9880, 399);
-                break;
-
             case 977://T�l�portation en salle des dalles Toror
                 try {
                     switch (player.getCurMap().getId()) {
