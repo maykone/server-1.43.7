@@ -2148,7 +2148,7 @@ public class Player {
                     if (date.contains("#")) {
                         date = date.split("#")[3];
                     }
-                    if (System.currentTimeMillis() - Long.parseLong(date) > 604800000) {
+                    if (System.currentTimeMillis() - Long.parseLong(date) > 86400000) {
                         object.getTxtStat().clear();
                         object.getTxtStat().putAll(Dopeul.generateStatsTrousseau());
                         SocketManager.GAME_SEND_UPDATE_ITEM(this, object);
