@@ -4594,12 +4594,7 @@ public class Fight {
         }
 
         if (this.getType() != Constant.FIGHT_TYPE_CHALLENGE) {
-            if (fighter.getPdv() <= 0)
-                player.setPdv(1);
-            else
-                player.setPdv(fighter.getPdv());
-
-            if(fighter.getLevelUp()) player.fullPDV();
+            player.fullPDV(); // Les gagnants récupèrent 100% de leur vie
         }
 
         if (this.getType() == 2)
@@ -4728,7 +4723,7 @@ public class Fight {
         }
 
         if (this.getType() != Constant.FIGHT_TYPE_CHALLENGE) {
-            int loose = Formulas.getLoosEnergy(player.getLevel(), getType() == 1, getType() == 5);
+            int loose = 0; // Plus de perte d'énergie en cas de défaite
             int energy = player.getEnergy() - loose;
 
             player.setEnergy((energy < 0 ? 0 : energy));
