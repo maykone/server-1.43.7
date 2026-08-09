@@ -5094,10 +5094,8 @@ public class Fight {
                                     this.getCapturer().remove(f);
                                     continue;
                                 }
-                                if (Formulas.getRandomValue(1, 100) <= Formulas.totalCaptChance(playerSoulStone.first, f.getPlayer())) {// Si le joueur obtiens la capture Retire la pierre vide au personnage et lui envoie ce changement
-                                    long emptySoulStone = emptySoulStoneObj.getGuid();
-                                    f.getPlayer().deleteItem(emptySoulStone);
-                                    SocketManager.GAME_SEND_REMOVE_ITEM_PACKET(f.getPlayer(), emptySoulStone);
+                                if (Formulas.getRandomValue(1, 100) <= Formulas.totalCaptChance(playerSoulStone.first, f.getPlayer())) {// Si le joueur obtiens la capture, retire UNE SEULE pierre vide (decompte le stack, ne supprime pas tout)
+                                    f.getPlayer().removeItem(emptySoulStoneObj.getGuid(), 1, true, true);
                                     this.setCaptWinner(f.getId());
                                     break;
                                 }
