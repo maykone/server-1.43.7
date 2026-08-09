@@ -522,45 +522,11 @@ public class CommandPlayer {
                 }
                 return true;
             }
-            else if(command(msg, "difficulty0") || command(msg, "diff0")) {
-                if (player.difficulty != 0) {
-                    player.difficulty = 0;
-                    player.sendMessage("A partir de maintenant vous lancerez les combats en difficulté : Normale");
-                } else {
-
-                    player.sendMessage("Déjà en difficulté normale");
-                }
-                return true;
-            }
-            else if(command(msg, "difficulty1") || command(msg, "diff1")) {
-
-                if (player.difficulty != 1) {
-                    player.difficulty = 1;
-                    player.sendMessage("A partir de maintenant vous lancerez les combats en difficulté : Difficile");
-                } else {
-
-                    player.sendMessage("Déjà en difficulté difficile");
-                }
-                return true;
-            }
-            else if(command(msg, "difficulty2") || command(msg, "diff2")) {
-                  if (player.difficulty != 2) {
-                    player.difficulty = 2;
-                    player.sendMessage("A partir de maintenant vous lancerez les combats en difficulté : Très difficile");
-                } else {
-
-                    player.sendMessage("Déjà en difficulté monstreuse");
-                }
-                return true;
-            }
-            else if(command(msg, "difficulty3") || command(msg, "diff3")) {
-                if (player.difficulty != 3) {
-                    player.difficulty = 3;
-                    player.sendMessage("A partir de maintenant vous lancerez les combats en difficulté : Monstreuse");
-                } else {
-
-                    player.sendMessage("Déjà en difficulté monstreuse");
-                }
+            else if(command(msg, "difficulty0") || command(msg, "diff0")
+                    || command(msg, "difficulty1") || command(msg, "diff1")
+                    || command(msg, "difficulty2") || command(msg, "diff2")
+                    || command(msg, "difficulty3") || command(msg, "diff3")) {
+                player.sendMessage("Le système de difficulté est désactivé sur ce serveur.");
                 return true;
             }
             else if(command(msg, "restat")) {

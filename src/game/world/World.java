@@ -6,7 +6,6 @@ import area.map.GameMap;
 import area.map.entity.*;
 import area.map.entity.InteractiveObject.InteractiveObjectTemplate;
 import area.map.labyrinth.Gladiatrool;
-import area.map.labyrinth.Hotomani;
 import area.map.labyrinth.Minotoror;
 import area.map.labyrinth.PigDragon;
 import ch.qos.logback.classic.Level;
@@ -715,8 +714,7 @@ public class World {
         PigDragon.initialize();
         logger.debug("Initialization of the dungeon : Labyrinth of the Minotoror.");
         Minotoror.initialize();
-        logger.debug("Initialization of the dungeon : Hotomani.");
-        Hotomani.initialize();
+        logger.debug("Hotomani désactivé (zone non accessible aux joueurs).");
         logger.debug("Initialization of the dungeons : Gladiatrool.");
         Gladiatrool.initialize();
         logger.debug("Initialisation de la boutique IG.");

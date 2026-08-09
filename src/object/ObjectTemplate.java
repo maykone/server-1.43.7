@@ -688,11 +688,7 @@ public class ObjectTemplate {
                             break;
                     }
 
-                    int rarete = 0;
-                    if( ArrayUtils.contains( Constant.ITEM_TYPE_WITH_RARITY, getType() )  )
-                    {
-                        rarete = GameObject.getRarityAlea(difficulty);
-                    }
+                    int rarete = 0; // Rareté désactivée sur les drops de combat : toujours Normale
 
                     item = new GameObject(id, getId(), qua, Constant.ITEM_POS_NO_EQUIPED, generateNewStatsFromTemplate(getStrTemplate(), useMax, rarete), getEffectTemplate(getStrTemplate()), new HashMap<Integer, Integer>(), Stat, 0, rarete,-1);
                     item.getSpellStats().addAll(this.getSpellStatsTemplate());
