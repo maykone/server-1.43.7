@@ -69,7 +69,7 @@ public class DropData extends AbstractDAO<World.Drop> {
                     }
                 }
             }
-            World.world.loadDropsBlackItem();
+            // Système "objets noirs" désactivé : seuls les drops explicitement renseignés dans la table `drops` doivent être obtenables.
         } catch (SQLException e) {
             super.sendError("DropData load", e);
         } finally {
