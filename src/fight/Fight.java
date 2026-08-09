@@ -5077,18 +5077,25 @@ public class Fight {
                         try {
                             Fighter f = this.getCapturer().get(Formulas.getRandomValue(0, this.getCapturer().size() - 1)); // R�cup�re un captureur au hasard dans la liste
                             if(f != null && f.getPlayer() != null) {
-                                if(f.getPlayer().getObjetByPos(Constant.ITEM_POS_ARME) == null || !(f.getPlayer().getObjetByPos(Constant.ITEM_POS_ARME).getTemplate().getType() == Constant.ITEM_TYPE_PIERRE_AME)) {
+                                GameObject emptySoulStoneObj = null;
+                                for (GameObject obj : f.getPlayer().getItems().values()) {
+                                    if (obj.getTemplate() != null && obj.getTemplate().getType() == Constant.ITEM_TYPE_PIERRE_AME) {
+                                        emptySoulStoneObj = obj;
+                                        break;
+                                    }
+                                }
+                                if (emptySoulStoneObj == null) {
                                     this.getCapturer().remove(f);
                                     continue;
                                 }
-                                Couple<Integer, Integer> playerSoulStone = Formulas.decompPierreAme(f.getPlayer().getObjetByPos(Constant.ITEM_POS_ARME));// R�cup�re les stats de la pierre �quipp�
+                                Couple<Integer, Integer> playerSoulStone = Formulas.decompPierreAme(emptySoulStoneObj);// R�cup�re les stats de la pierre vide en inventaire (plus besoin d'�tre �quip�e)
 
                                 if (playerSoulStone.second < maxLvl) {// Si la pierre est trop faible
                                     this.getCapturer().remove(f);
                                     continue;
                                 }
                                 if (Formulas.getRandomValue(1, 100) <= Formulas.totalCaptChance(playerSoulStone.first, f.getPlayer())) {// Si le joueur obtiens la capture Retire la pierre vide au personnage et lui envoie ce changement
-                                    long emptySoulStone = f.getPlayer().getObjetByPos(Constant.ITEM_POS_ARME).getGuid();
+                                    long emptySoulStone = emptySoulStoneObj.getGuid();
                                     f.getPlayer().deleteItem(emptySoulStone);
                                     SocketManager.GAME_SEND_REMOVE_ITEM_PACKET(f.getPlayer(), emptySoulStone);
                                     this.setCaptWinner(f.getId());
