@@ -3029,10 +3029,56 @@ public class GameClient {
                     object.getTxtStat().put(996, this.getPlayer().getName());
                     object.getTxtStat().put(997, mount.getName());
                 }
+
+                // PNJ avec le flag 0x8 (ex: Kirac) : le familier acheté est livré avec ses stats
+                // évolutives déjà réparties au maximum, plutôt que de démarrer à 0 et devoir être nourri.
+                if (object != null && template.getType() == Constant.ITEM_TYPE_FAMILIER && (npcTemplate.getInformations() & 0x8) == 8) {
+                    maximizePetStats(object, template.getId());
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 SocketManager.GAME_SEND_BUY_ERROR_PACKET(this);
             }
+        }
+    }
+
+    /**
+     * Répartit équitablement le budget de croissance d'un familier (Pet.getMax(), pondéré par
+     * Formulas.getWeightByStat() comme le fait le nourrissage normal via PetEntry.eat()) entre
+     * toutes ses stats évolutives, pour livrer un familier déjà monté au maximum en un achat.
+     * Sans effet sur les familiers non évolutifs (type -1/0, PetEntry.canEat() renvoie toujours
+     * false pour eux) : leurs stats fixes viennent déjà du "jet" via createNewItem(useMax=true).
+     */
+    private void maximizePetStats(GameObject object, int templateId) {
+        Pet pet = World.world.getPets(templateId);
+        if (pet == null || pet.getMax() <= 0) return;
+        if (pet.getType() != 1 && pet.getType() != 2 && pet.getType() != 3) return;
+
+        String statsUp = pet.getStatsUp();
+        if (statsUp == null || statsUp.isEmpty()) return;
+
+        // Les statID évolutifs sont la clé hexadécimale avant chaque "|" (statID|détail;statID|détail...) ;
+        // on n'a pas besoin de la partie après "|" (aliments/catégories autorisés), seulement de la liste des stats.
+        java.util.LinkedHashSet<Integer> statIds = new java.util.LinkedHashSet<>();
+        for (String group : statsUp.split(";")) {
+            String[] split = group.split("\\|");
+            if (split.length < 1) continue;
+            try {
+                statIds.add(Integer.parseInt(split[0], 16));
+            } catch (NumberFormatException ignored) {}
+        }
+        if (statIds.isEmpty()) return;
+
+        double budgetPerStat = (double) pet.getMax() / statIds.size();
+        for (int statId : statIds) {
+            double weight = Formulas.getWeightByStat(statId);
+            if (weight <= 0) continue;
+            int value = (int) Math.round(budgetPerStat / weight);
+            if (value <= 0) continue;
+            if (object.getStats().getEffects().containsKey(statId)) {
+                object.getStats().getEffects().remove(statId);
+            }
+            object.getStats().addOneStat(statId, value);
         }
     }
 
