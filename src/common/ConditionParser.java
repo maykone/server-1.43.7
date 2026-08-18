@@ -58,6 +58,8 @@ public class ConditionParser {
             return haveQT(req, perso);
         if (req.contains("Ce"))
             return haveCe(req, perso);
+        if (req.contains("Cd"))
+            return haveCd(req, perso);
         if (req.contains("TiT"))
             return haveTiT(req, perso);
         if (req.contains("Ti"))
@@ -347,6 +349,34 @@ public class ConditionParser {
                 return System.currentTimeMillis() - timeStamp > 86400000;
             } else
                 return true;
+        }
+        return false;
+    }
+
+    // Cooldown g�n�rique r�utilisable (ex: qu�tes journali�res) : Cd==itemId,minutes
+    // M�me logique que haveCe (certificats dopeul) mais g�n�rique et param�trable,
+    // contrairement � haveTi qui ne g�re pas correctement le cas "jamais fait" (pas de else, tombe sur le return false final).
+    // Le jeton (itemId) doit �tre redonn� au joueur � chaque fin de qu�te : sa nouvelle instance
+    // recevra automatiquement un STATS_DATE = maintenant (ObjectTemplate cr�e toujours ce stat � la cr�ation),
+    // ce qui relance le cooldown pour le prochain cycle.
+    private static boolean haveCd(String req, Player player) {
+        if (req.contains("==")) {
+            String split = req.split("==")[1];
+            if (split.contains(",")) {
+                String[] split2 = split.split(",");
+                int item = Integer.parseInt(split2[0]);
+                long time = Long.parseLong(split2[1]) * 60 * 1000L;
+                if (player.hasItemTemplate(item, 1)) {
+                    String txt = player.getItemTemplate(item, 1).getTxtStat().get(Constant.STATS_DATE);
+                    if (txt == null)
+                        return true;
+                    if (txt.contains("#"))
+                        txt = txt.split("#")[3];
+                    long timeStamp = Long.parseLong(txt);
+                    return System.currentTimeMillis() - timeStamp > time;
+                } else
+                    return true;
+            }
         }
         return false;
     }
