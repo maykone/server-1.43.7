@@ -37,6 +37,12 @@ public class Effect  {
     private int type = EffectConstant.EFFECT_TYPE_SPELL; // 0 = sort, 1 = Cac, (Ajouter d'autre ??), 2 = consommables
     private int elem=-1; // element de l'effet (-1 : SANS ELEM, 0 : NEUTRE, 1 : TERRE, 2 : EAU, 3 : FEU, 4 : AIR)
 
+    // --- Sadida : mécanique "Parasite" (marque persistante posée par un sort, consommée en zone par un autre) ---
+    // IDs custom libres (vérifiés absents de la table spells_effect et du fichier client states_fr au 2026-08-20).
+    public static final int SADIDA_PARASITE_APPLY = 9500; // Pose l'état Parasite sur la cible, durée illimitée, pas d'effet direct
+    public static final int SADIDA_PARASITE_CONSUME = 9501; // Si la cible est infectée : dégâts (args1/args2) + malus PO (args3, 1 tour) à toutes les AUTRES cibles infectées de la carte, puis retire la marque à toutes (cible comprise). Si non infectée : ne fait rien (le sort garde ses autres effets normaux, inchangés).
+    public static final int ETAT_PARASITE = 900; // ID d'état custom dédié à la marque Parasite
+
     // Pour type Spell
     private boolean isSpell = false;
     private int spellID=-1;  // ID du spell
@@ -706,6 +712,12 @@ public class Effect  {
                     break;
                 case 951://Enleve Etat X
                     applyEffect_951(fight, target);
+                    break;
+                case SADIDA_PARASITE_APPLY:
+                    applyEffect_SadidaParasiteApply(fight, target);
+                    break;
+                case SADIDA_PARASITE_CONSUME:
+                    applyEffect_SadidaParasiteConsume(fight, target);
                     break;
                 default:
                     GameServer.a("Pas d'effet de spell " + effectID + " Dev pour le spell " + spellID);
@@ -2476,6 +2488,58 @@ public class Effect  {
         target.setState(etatId, 0);
         target.debuffState(etatId);
         SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, target.getId() + "", target.getId() + "," + etatId + ",0", this.getEffectID());
+    }
+
+    // Sadida - Parasite : pose la marque (durée illimitée, aucun effet direct sur la cible)
+    private void applyEffect_SadidaParasiteApply(Fight fight, Fighter target) {
+        target.setState(ETAT_PARASITE, -1);
+        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, target.getId() + "", target.getId() + "," + ETAT_PARASITE + ",1", this.effectID);
+    }
+
+    // Sadida - Parasite : si la cible est infectée, inflige args1-args2 dégâts + malus -args3 PO (1 tour)
+    // à toutes les AUTRES cibles infectées du combat, puis retire la marque à toutes (cible touchée comprise).
+    // Si la cible n'est pas infectée : ne fait rien, le sort garde ses effets normaux (ses autres tuples, inchangés).
+    private void applyEffect_SadidaParasiteConsume(Fight fight, Fighter target) {
+        if (!target.haveState(ETAT_PARASITE))
+            return;
+
+        int poMalus = this.getArgs3();
+        ArrayList<Fighter> all = fight.getFighters(3);
+        for (Fighter f : all) {
+            if (f == null || f == target || f.isDead())
+                continue;
+            if (!f.haveState(ETAT_PARASITE))
+                continue;
+
+            int rolled = Formulas.getRandomJet(args1, args2, caster);
+            int finalDommage = Formulas.getAlteredJet(rolled, args2, f, caster);
+            if (finalDommage > f.getPdv())
+                finalDommage = f.getPdv();
+
+            f.removePdv(caster, finalDommage);
+            sendClientDamage(fight, f.getId(), finalDommage);
+            applyEffectAfterHit(fight, f, caster, finalDommage);
+
+            if (poMalus > 0) {
+                f.addBuff(EffectConstant.STATS_REM_PO, poMalus, 1, args1, args2, args3, true, spellID, caster, true);
+                SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, EffectConstant.STATS_REM_PO, caster.getId() + "", f.getId() + "," + poMalus + ",1", this.effectID);
+            }
+
+            // Même vérification de mort que le pipeline générique (applyEffectOnTarget, fin de méthode)
+            if (f.getPdv() <= 0 && !f.isDead()) {
+                f.setPdv(0);
+                fight.onFighterDie(f, caster);
+            }
+
+            f.setState(ETAT_PARASITE, 0);
+            f.debuffState(ETAT_PARASITE);
+            SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, f.getId() + "", f.getId() + "," + ETAT_PARASITE + ",0", this.effectID);
+        }
+
+        // Retire aussi la marque de la cible directement touchée par le sort
+        target.setState(ETAT_PARASITE, 0);
+        target.debuffState(ETAT_PARASITE);
+        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, target.getId() + "", target.getId() + "," + ETAT_PARASITE + ",0", this.effectID);
     }
 
 
