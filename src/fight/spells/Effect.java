@@ -64,7 +64,7 @@ public class Effect  {
     public static final int SADIDA_TREE_DAMAGE_AIR = 9509;
     public static final int SADIDA_TREE_DAMAGE_FEU = 9510;
     public static final int SADIDA_TREE_DAMAGE_TERRE = 9511;
-    public static final int SADIDA_TREE_POWER = 9512; // +Dommages (STATS_ADD_DOMA) au lanceur
+    public static final int SADIDA_TREE_POWER = 9512; // +% Dommages (STATS_ADD_PERDOM) au lanceur
 
     // Pour type Spell
     private boolean isSpell = false;
@@ -2626,16 +2626,17 @@ public class Effect  {
         applyEffect_DamageElem(target, fight, isCac, dmge * trees);
     }
 
-    // Sadida - buff +Dommages (clé native STATS_ADD_DOMA=112, jamais this.effectID -- même piège que pour le
-    // malus PO : le suivi de stats du jeu ne reconnaît que les IDs natifs connus) au lanceur, proportionnel
-    // au nombre d'Arbres sur le terrain. Si 0 arbre : ne fait rien.
+    // Sadida - buff +% Dommages (clé native STATS_ADD_PERDOM=138, même mécanique que l'effet natif "Augmente
+    // les dommages de X%" utilisé par le sort 153 -- jamais this.effectID comme clé de buff, même piège que
+    // pour le malus PO : le suivi de stats du jeu ne reconnaît que les IDs natifs connus) au lanceur,
+    // proportionnel au nombre d'Arbres sur le terrain. Si 0 arbre : ne fait rien.
     private void applyEffect_SadidaTreePower(Fight fight, int dmge) {
         int trees = countCasterTrees(fight, caster);
         if (trees <= 0)
             return;
         int val = Formulas.getAlteredJet(dmge, args2, caster, caster) * trees;
-        caster.addBuff(EffectConstant.STATS_ADD_DOMA, val, turn, args1, args2, args3, true, spellID, caster, true);
-        sendClientBuff(fight, EffectConstant.STATS_ADD_DOMA, val, caster.getId(), false);
+        caster.addBuff(EffectConstant.STATS_ADD_PERDOM, val, turn, args1, args2, args3, true, spellID, caster, true);
+        sendClientBuff(fight, EffectConstant.STATS_ADD_PERDOM, val, caster.getId(), false);
     }
 
 
