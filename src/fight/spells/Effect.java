@@ -39,8 +39,19 @@ public class Effect  {
 
     // --- Sadida : mécanique "Parasite" (marque persistante posée par un sort, consommée en zone par un autre) ---
     // IDs custom libres (vérifiés absents de la table spells_effect et du fichier client states_fr au 2026-08-20).
+    // Chaque effet "consommateur" (9501-9507) fait UNE seule chose (dégâts d'un élément, malus PO, retrait PM,
+    // retrait d'envoûtements) à toutes les cibles infectées (cible touchée par le sort comprise, en plus de son
+    // effet normal qui s'applique déjà via les autres tuples du sort) : un sort peut combiner plusieurs de ces
+    // tuples pour recréer un effet composite (ex: dégâts + malus PO). Si la cible n'est pas infectée : aucun de
+    // ces effets ne fait rien, le sort garde ses effets normaux existants intacts.
     public static final int SADIDA_PARASITE_APPLY = 9500; // Pose l'état Parasite sur la cible, durée illimitée, pas d'effet direct
-    public static final int SADIDA_PARASITE_CONSUME = 9501; // Si la cible est infectée : dégâts (args1/args2) + malus PO (args3, 1 tour) à toutes les AUTRES cibles infectées de la carte, puis retire la marque à toutes (cible comprise). Si non infectée : ne fait rien (le sort garde ses autres effets normaux, inchangés).
+    public static final int SADIDA_PARASITE_DAMAGE_EAU = 9501;
+    public static final int SADIDA_PARASITE_DAMAGE_AIR = 9502;
+    public static final int SADIDA_PARASITE_DAMAGE_FEU = 9503;
+    public static final int SADIDA_PARASITE_DAMAGE_TERRE = 9504;
+    public static final int SADIDA_PARASITE_PO = 9505; // Malus PO (esquivable, comme l'effet natif 116)
+    public static final int SADIDA_PARASITE_PM = 9506; // Retrait PM (esquivable, comme l'effet natif 127)
+    public static final int SADIDA_PARASITE_ENVOUTEMENT = 9507; // Retire les envoûtements (comme l'effet natif 132)
     public static final int ETAT_PARASITE = 900; // ID d'état custom dédié à la marque Parasite
 
     // Pour type Spell
@@ -716,8 +727,20 @@ public class Effect  {
                 case SADIDA_PARASITE_APPLY:
                     applyEffect_SadidaParasiteApply(fight, target);
                     break;
-                case SADIDA_PARASITE_CONSUME:
-                    applyEffect_SadidaParasiteConsume(fight, target);
+                case SADIDA_PARASITE_DAMAGE_EAU:
+                case SADIDA_PARASITE_DAMAGE_AIR:
+                case SADIDA_PARASITE_DAMAGE_FEU:
+                case SADIDA_PARASITE_DAMAGE_TERRE:
+                    applyEffect_SadidaParasiteDamage(fight, target, isCac, dmge);
+                    break;
+                case SADIDA_PARASITE_PO:
+                    applyEffect_SadidaParasitePO(fight, target, dmge);
+                    break;
+                case SADIDA_PARASITE_PM:
+                    applyEffect_SadidaParasitePM(fight, target, dmge);
+                    break;
+                case SADIDA_PARASITE_ENVOUTEMENT:
+                    applyEffect_SadidaParasiteEnvoutement(fight, target);
                     break;
                 default:
                     GameServer.a("Pas d'effet de spell " + effectID + " Dev pour le spell " + spellID);
@@ -2496,45 +2519,68 @@ public class Effect  {
         SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, target.getId() + "", target.getId() + "," + ETAT_PARASITE + ",1", this.effectID);
     }
 
-    // Sadida - Parasite : si la cible est infectée, inflige args1-args2 dégâts + malus -args3 PO (1 tour)
-    // à TOUTES les cibles infectées du combat (cible touchée par le sort comprise, en plus de son effet
-    // normal qui s'applique déjà via les autres tuples du sort), puis retire la marque à toutes.
+    // Sadida - Parasite : liste des cibles actuellement infectées et vivantes du combat (alliées ou ennemies)
+    private ArrayList<Fighter> getParasiteInfectedFighters(Fight fight) {
+        ArrayList<Fighter> infected = new ArrayList<>();
+        for (Fighter f : fight.getFighters(3))
+            if (f != null && !f.isDead() && f.haveState(ETAT_PARASITE))
+                infected.add(f);
+        return infected;
+    }
+
+    // Sadida - Parasite : retire la marque d'une cible et prévient le client (même format que l'effet natif 951)
+    private void clearParasiteMark(Fight fight, Fighter f) {
+        f.setState(ETAT_PARASITE, 0);
+        f.debuffState(ETAT_PARASITE);
+        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, f.getId() + "", f.getId() + "," + ETAT_PARASITE + ",0", this.effectID);
+    }
+
+    // Sadida - Parasite : dégâts élémentaires (Eau/Air/Feu/Terre selon l'effectID appelant -- this.elem est déjà
+    // positionné correctement par le dispatch générique via EffectConstant.getElemSwitchEffect) à toutes les
+    // cibles infectées (cible touchée par le sort comprise), puis retire leur marque. Réutilise telle quelle la
+    // méthode native de dégâts élémentaires (résistances, mort, etc. gérés exactement comme un sort normal).
     // Si la cible n'est pas infectée : ne fait rien, le sort garde ses effets normaux (ses autres tuples, inchangés).
-    private void applyEffect_SadidaParasiteConsume(Fight fight, Fighter target) {
+    private void applyEffect_SadidaParasiteDamage(Fight fight, Fighter target, boolean isCac, int dmge) {
         if (!target.haveState(ETAT_PARASITE))
             return;
+        for (Fighter f : getParasiteInfectedFighters(fight)) {
+            applyEffect_DamageElem(f, fight, isCac, dmge);
+            clearParasiteMark(fight, f);
+        }
+    }
 
-        int poMalus = this.getArgs3();
-        ArrayList<Fighter> all = fight.getFighters(3);
-        for (Fighter f : all) {
-            if (f == null || f.isDead())
-                continue;
-            if (!f.haveState(ETAT_PARASITE))
-                continue;
+    // Sadida - Parasite : malus PO esquivable (même mécanique que l'effet natif 116) à toutes les cibles
+    // infectées (cible touchée comprise), puis retire leur marque.
+    private void applyEffect_SadidaParasitePO(Fight fight, Fighter target, int dmge) {
+        if (!target.haveState(ETAT_PARASITE))
+            return;
+        for (Fighter f : getParasiteInfectedFighters(fight)) {
+            int val = Formulas.getAlteredJet(dmge, args2, f, caster);
+            f.addBuff(EffectConstant.STATS_REM_PO, val, turn, args1, args2, args3, true, spellID, caster, true);
+            SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, EffectConstant.STATS_REM_PO, caster.getId() + "", f.getId() + "," + val + "," + turn, this.effectID);
+            clearParasiteMark(fight, f);
+        }
+    }
 
-            int rolled = Formulas.getRandomJet(args1, args2, caster);
-            int finalDommage = Formulas.getAlteredJet(rolled, args2, f, caster);
-            if (finalDommage > f.getPdv())
-                finalDommage = f.getPdv();
+    // Sadida - Parasite : retrait PM esquivable (même mécanique que l'effet natif 127) à toutes les cibles
+    // infectées (cible touchée comprise), puis retire leur marque. Réutilise applyEffect_RetMP telle quelle.
+    private void applyEffect_SadidaParasitePM(Fight fight, Fighter target, int dmge) {
+        if (!target.haveState(ETAT_PARASITE))
+            return;
+        for (Fighter f : getParasiteInfectedFighters(fight)) {
+            applyEffect_RetMP(f, fight, dmge);
+            clearParasiteMark(fight, f);
+        }
+    }
 
-            f.removePdv(caster, finalDommage);
-            sendClientDamage(fight, f.getId(), finalDommage);
-            applyEffectAfterHit(fight, f, caster, finalDommage);
-
-            if (poMalus > 0) {
-                f.addBuff(EffectConstant.STATS_REM_PO, poMalus, 1, args1, args2, args3, true, spellID, caster, true);
-                SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, EffectConstant.STATS_REM_PO, caster.getId() + "", f.getId() + "," + poMalus + ",1", this.effectID);
-            }
-
-            // Même vérification de mort que le pipeline générique (applyEffectOnTarget, fin de méthode)
-            if (f.getPdv() <= 0 && !f.isDead()) {
-                f.setPdv(0);
-                fight.onFighterDie(f, caster);
-            }
-
-            f.setState(ETAT_PARASITE, 0);
-            f.debuffState(ETAT_PARASITE);
-            SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, f.getId() + "", f.getId() + "," + ETAT_PARASITE + ",0", this.effectID);
+    // Sadida - Parasite : retire les envoûtements (même mécanique que l'effet natif 132) à toutes les cibles
+    // infectées (cible touchée comprise), puis retire leur marque. Réutilise applyEffect_132 telle quelle.
+    private void applyEffect_SadidaParasiteEnvoutement(Fight fight, Fighter target) {
+        if (!target.haveState(ETAT_PARASITE))
+            return;
+        for (Fighter f : getParasiteInfectedFighters(fight)) {
+            applyEffect_132(f, fight);
+            clearParasiteMark(fight, f);
         }
     }
 

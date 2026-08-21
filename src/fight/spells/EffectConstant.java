@@ -228,24 +228,28 @@ public class EffectConstant {
             case 91:
             case 96:
             case 275:
+            case Effect.SADIDA_PARASITE_DAMAGE_EAU:
                 elem = Constant.ELEMENT_EAU;
                 break;
             case 86:
             case 92:
             case 97:
             case 276:
+            case Effect.SADIDA_PARASITE_DAMAGE_TERRE:
                 elem = Constant.ELEMENT_TERRE;
                 break;
             case 87:
             case 93:
             case 98:
             case 277:
+            case Effect.SADIDA_PARASITE_DAMAGE_AIR:
                 elem = Constant.ELEMENT_AIR;
                 break;
             case 88:
             case 94:
             case 99:
             case 278:
+            case Effect.SADIDA_PARASITE_DAMAGE_FEU:
                 elem = Constant.ELEMENT_FEU;
                 break;
             case 89:
