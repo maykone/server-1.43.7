@@ -2497,7 +2497,8 @@ public class Effect  {
     }
 
     // Sadida - Parasite : si la cible est infectée, inflige args1-args2 dégâts + malus -args3 PO (1 tour)
-    // à toutes les AUTRES cibles infectées du combat, puis retire la marque à toutes (cible touchée comprise).
+    // à TOUTES les cibles infectées du combat (cible touchée par le sort comprise, en plus de son effet
+    // normal qui s'applique déjà via les autres tuples du sort), puis retire la marque à toutes.
     // Si la cible n'est pas infectée : ne fait rien, le sort garde ses effets normaux (ses autres tuples, inchangés).
     private void applyEffect_SadidaParasiteConsume(Fight fight, Fighter target) {
         if (!target.haveState(ETAT_PARASITE))
@@ -2506,7 +2507,7 @@ public class Effect  {
         int poMalus = this.getArgs3();
         ArrayList<Fighter> all = fight.getFighters(3);
         for (Fighter f : all) {
-            if (f == null || f == target || f.isDead())
+            if (f == null || f.isDead())
                 continue;
             if (!f.haveState(ETAT_PARASITE))
                 continue;
@@ -2535,11 +2536,6 @@ public class Effect  {
             f.debuffState(ETAT_PARASITE);
             SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, f.getId() + "", f.getId() + "," + ETAT_PARASITE + ",0", this.effectID);
         }
-
-        // Retire aussi la marque de la cible directement touchée par le sort
-        target.setState(ETAT_PARASITE, 0);
-        target.debuffState(ETAT_PARASITE);
-        SocketManager.GAME_SEND_GA_PACKET_TO_FIGHT(fight, 7, 950, target.getId() + "", target.getId() + "," + ETAT_PARASITE + ",0", this.effectID);
     }
 
 
