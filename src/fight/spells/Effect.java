@@ -54,6 +54,18 @@ public class Effect  {
     public static final int SADIDA_PARASITE_ENVOUTEMENT = 9507; // Retire les envoûtements (comme l'effet natif 132)
     public static final int ETAT_PARASITE = 900; // ID d'état custom dédié à la marque Parasite
 
+    // --- Sadida : bonus proportionnel au nombre d'Arbres invoqués (monstre 282, sort 186) présents sur le
+    // terrain et appartenant au lanceur (getInvocator()==caster, même convention que Fighter.nbInvocation()).
+    // Le jet (args1-args2) est simplement multiplié par le nombre d'arbres avant application -- aucune autre
+    // méthode de calcul existante n'est modifiée, ces effets ne sont que des tuples supplémentaires optionnels
+    // sur un sort. Si 0 arbre : ne fait rien, le sort garde ses effets normaux existants intacts.
+    public static final int SADIDA_TREE_MONSTER_ID = 282; // Monstre "Arbre"
+    public static final int SADIDA_TREE_DAMAGE_EAU = 9508;
+    public static final int SADIDA_TREE_DAMAGE_AIR = 9509;
+    public static final int SADIDA_TREE_DAMAGE_FEU = 9510;
+    public static final int SADIDA_TREE_DAMAGE_TERRE = 9511;
+    public static final int SADIDA_TREE_POWER = 9512; // +Dommages (STATS_ADD_DOMA) au lanceur
+
     // Pour type Spell
     private boolean isSpell = false;
     private int spellID=-1;  // ID du spell
@@ -741,6 +753,15 @@ public class Effect  {
                     break;
                 case SADIDA_PARASITE_ENVOUTEMENT:
                     applyEffect_SadidaParasiteEnvoutement(fight, target);
+                    break;
+                case SADIDA_TREE_DAMAGE_EAU:
+                case SADIDA_TREE_DAMAGE_AIR:
+                case SADIDA_TREE_DAMAGE_FEU:
+                case SADIDA_TREE_DAMAGE_TERRE:
+                    applyEffect_SadidaTreeDamage(fight, target, isCac, dmge);
+                    break;
+                case SADIDA_TREE_POWER:
+                    applyEffect_SadidaTreePower(fight, dmge);
                     break;
                 default:
                     GameServer.a("Pas d'effet de spell " + effectID + " Dev pour le spell " + spellID);
@@ -2582,6 +2603,39 @@ public class Effect  {
             applyEffect_132(f, fight);
             clearParasiteMark(fight, f);
         }
+    }
+
+    // Sadida - compte les Arbres (monstre SADIDA_TREE_MONSTER_ID) vivants sur le terrain, invoqués par ce lanceur.
+    private int countCasterTrees(Fight fight, Fighter casterFighter) {
+        int count = 0;
+        for (Fighter f : fight.getFighters(3))
+            if (f != null && !f.isDead() && f.isInvocation() && f.getInvocator() == casterFighter
+                    && f.getMob() != null && f.getMob().getTemplate().getId() == SADIDA_TREE_MONSTER_ID)
+                count++;
+        return count;
+    }
+
+    // Sadida - dégâts élémentaires (Eau/Air/Feu/Terre selon l'effectID appelant, this.elem déjà positionné
+    // par le dispatch générique) multipliés par le nombre d'Arbres du lanceur sur le terrain. Réutilise
+    // telle quelle la méthode native de dégâts élémentaires. Si 0 arbre : ne fait rien, le sort garde ses
+    // effets normaux (ses autres tuples, inchangés).
+    private void applyEffect_SadidaTreeDamage(Fight fight, Fighter target, boolean isCac, int dmge) {
+        int trees = countCasterTrees(fight, caster);
+        if (trees <= 0)
+            return;
+        applyEffect_DamageElem(target, fight, isCac, dmge * trees);
+    }
+
+    // Sadida - buff +Dommages (clé native STATS_ADD_DOMA=112, jamais this.effectID -- même piège que pour le
+    // malus PO : le suivi de stats du jeu ne reconnaît que les IDs natifs connus) au lanceur, proportionnel
+    // au nombre d'Arbres sur le terrain. Si 0 arbre : ne fait rien.
+    private void applyEffect_SadidaTreePower(Fight fight, int dmge) {
+        int trees = countCasterTrees(fight, caster);
+        if (trees <= 0)
+            return;
+        int val = Formulas.getAlteredJet(dmge, args2, caster, caster) * trees;
+        caster.addBuff(EffectConstant.STATS_ADD_DOMA, val, turn, args1, args2, args3, true, spellID, caster, true);
+        sendClientBuff(fight, EffectConstant.STATS_ADD_DOMA, val, caster.getId(), false);
     }
 
 

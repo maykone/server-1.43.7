@@ -229,6 +229,7 @@ public class EffectConstant {
             case 96:
             case 275:
             case Effect.SADIDA_PARASITE_DAMAGE_EAU:
+            case Effect.SADIDA_TREE_DAMAGE_EAU:
                 elem = Constant.ELEMENT_EAU;
                 break;
             case 86:
@@ -236,6 +237,7 @@ public class EffectConstant {
             case 97:
             case 276:
             case Effect.SADIDA_PARASITE_DAMAGE_TERRE:
+            case Effect.SADIDA_TREE_DAMAGE_TERRE:
                 elem = Constant.ELEMENT_TERRE;
                 break;
             case 87:
@@ -243,6 +245,7 @@ public class EffectConstant {
             case 98:
             case 277:
             case Effect.SADIDA_PARASITE_DAMAGE_AIR:
+            case Effect.SADIDA_TREE_DAMAGE_AIR:
                 elem = Constant.ELEMENT_AIR;
                 break;
             case 88:
@@ -250,6 +253,7 @@ public class EffectConstant {
             case 99:
             case 278:
             case Effect.SADIDA_PARASITE_DAMAGE_FEU:
+            case Effect.SADIDA_TREE_DAMAGE_FEU:
                 elem = Constant.ELEMENT_FEU;
                 break;
             case 89:
