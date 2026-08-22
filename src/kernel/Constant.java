@@ -948,7 +948,7 @@ public class Constant {
             case CLASS_SADIDA:
                 start.put(183, World.world.getSort(183).getStatsByLevel(1));//Ronce
                 start.put(200, World.world.getSort(200).getStatsByLevel(1));//Poison Paralysant
-                start.put(193, World.world.getSort(193).getStatsByLevel(1));//La bloqueuse
+                start.put(182, World.world.getSort(182).getStatsByLevel(1));//La Folle (ex-193 Spores, réordonné niveau 1<->70)
                 break;
             case CLASS_OSAMODAS:
                 start.put(34, World.world.getSort(34).getStatsByLevel(1));//Invocation de tofu
